@@ -1,0 +1,204 @@
+/**
+ * Aquastat API client.
+ *
+ * - Reads JWT from localStorage (set on login) and sends as Bearer header.
+ * - Cookie-based auth still works in parallel via credentials: 'include'.
+ * - All endpoints expect/return JSON.
+ */
+
+const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? "/api";
+const TOKEN_KEY = "aquastat.token";
+
+export function getToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY);
+}
+export function setToken(token: string | null) {
+  if (token) localStorage.setItem(TOKEN_KEY, token);
+  else localStorage.removeItem(TOKEN_KEY);
+}
+
+export class ApiError extends Error {
+  status: number;
+  code: string;
+  constructor(status: number, code: string, message?: string) {
+    super(message ?? code);
+    this.status = status;
+    this.code = code;
+  }
+}
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const headers = new Headers(init?.headers);
+  if (!headers.has("Content-Type") && init?.body) {
+    headers.set("Content-Type", "application/json");
+  }
+  const token = getToken();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...init,
+    headers,
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    let body: { error?: string; message?: string } = {};
+    try {
+      body = await res.json();
+    } catch {
+      // body is not JSON
+    }
+    if (res.status === 401) setToken(null);
+    throw new ApiError(res.status, body.error ?? "request_failed", body.message);
+  }
+
+  if (res.status === 204) return undefined as T;
+  return (await res.json()) as T;
+}
+
+// ─── Types (subset, hand-written for clarity) ──────────────────────────────
+
+export type Role = "federation_admin" | "club_admin" | "coach" | "parent";
+
+export type AuthUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  clubId: string | null;
+  preferredLocale: "el" | "en";
+};
+
+export type Club = {
+  id: string;
+  name: string;
+  shortName: string | null;
+  federationCode: string | null;
+  country: string;
+  isActive: boolean;
+};
+
+export type Athlete = {
+  id: string;
+  clubId: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  gender: "male" | "female" | "mixed" | "any";
+  registrationNumber: string | null;
+  coachId: string | null;
+  isActive: boolean;
+};
+
+export type Competition = {
+  id: string;
+  seasonId: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  location: string | null;
+  venue: string | null;
+  poolType: "25m" | "50m" | "unknown";
+  declarationDeadline: string | null;
+  maxEventsPerAthlete: number | null;
+};
+
+export type CompetitionResult = {
+  id: string;
+  timeMs: number;
+  rank: number | null;
+  poolType: "25m" | "50m" | "unknown";
+  roundType: "heat" | "final" | "direct_final" | "training_race" | "unknown";
+  verificationStatus: "pending" | "verified" | "rejected";
+  eventDisplay: string;
+  createdAt: string;
+};
+
+export type Standard = {
+  id: string;
+  standardType: "domestic_qualification" | "penalty_limit" | "international" | "national_team" | "incentive";
+  gender: "male" | "female" | "mixed" | "any";
+  timeMs: number;
+  validFrom: string | null;
+  validUntil: string | null;
+  categoryEl: string | null;
+  categoryEn: string | null;
+  eventDisplay: string;
+  distanceM: number;
+  stroke: string;
+};
+
+// ─── Endpoints ─────────────────────────────────────────────────────────────
+
+export const api = {
+  auth: {
+    login: (email: string, password: string) =>
+      request<{ token: string; user: AuthUser }>("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      }),
+    me: () => request<AuthUser>("/auth/me"),
+    logout: () => request<void>("/auth/logout", { method: "POST" }),
+    forgotPassword: (email: string) =>
+      request<void>("/auth/forgot-password", { method: "POST", body: JSON.stringify({ email }) }),
+    resetPassword: (token: string, newPassword: string) =>
+      request<void>("/auth/reset-password", { method: "POST", body: JSON.stringify({ token, newPassword }) }),
+  },
+
+  clubs: {
+    list: () => request<{ clubs: Club[] }>("/clubs"),
+    get: (id: string) => request<{ club: Club }>(`/clubs/${id}`),
+  },
+
+  athletes: {
+    list: () => request<{ athletes: Athlete[] }>("/athletes"),
+    get: (id: string) => request<{ athlete: Athlete }>(`/athletes/${id}`),
+    results: (id: string) =>
+      request<{ results: CompetitionResult[] }>(`/athletes/${id}/results`),
+  },
+
+  competitions: {
+    list: () => request<{ competitions: Competition[] }>("/competitions"),
+    get: (id: string) =>
+      request<{ competition: Competition; program: unknown[] }>(`/competitions/${id}`),
+  },
+
+  standards: {
+    list: (seasonId?: string) =>
+      request<{ standards: Standard[] }>(`/standards${seasonId ? `?seasonId=${seasonId}` : ""}`),
+  },
+
+  swimEvents: {
+    list: () => request<{ swimEvents: SwimEvent[] }>("/swim-events"),
+  },
+
+  results: {
+    createCompetition: (payload: {
+      athleteId: string;
+      competitionId: string;
+      swimEventId: string;
+      resultTimeMs: number;
+      poolType: "25m" | "50m" | "unknown";
+      roundType?: "heat" | "final" | "direct_final" | "training_race" | "unknown";
+      rank?: number;
+    }) => request<{ result: { id: string } }>("/results/competition", { method: "POST", body: JSON.stringify(payload) }),
+    createTraining: (payload: {
+      athleteId: string;
+      swimEventId: string;
+      resultTimeMs: number;
+      date: string;
+      trainingType: "test" | "time_trial" | "race_simulation" | "set_result" | "coach_observation";
+      trainingContext?: "normal" | "heavy_fatigue" | "taper" | "after_gym" | "before_competition" | "technical_test";
+      notes?: string;
+    }) => request<{ result: { id: string } }>("/results/training", { method: "POST", body: JSON.stringify(payload) }),
+  },
+};
+
+export type SwimEvent = {
+  id: string;
+  distanceM: number;
+  stroke: "freestyle" | "backstroke" | "breaststroke" | "butterfly" | "medley";
+  relay: boolean;
+  gender: "male" | "female" | "mixed" | "any";
+  displayName: string;
+};

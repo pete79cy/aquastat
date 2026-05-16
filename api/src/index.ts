@@ -12,6 +12,7 @@ import athletesRouter from "./routes/athletes.js";
 import competitionsRouter from "./routes/competitions.js";
 import resultsRouter from "./routes/results.js";
 import standardsRouter from "./routes/standards.js";
+import swimEventsRouter from "./routes/swimEvents.js";
 import { sql } from "./db/client.js";
 
 const app = express();
@@ -48,6 +49,7 @@ app.use("/api/athletes", athletesRouter);
 app.use("/api/competitions", competitionsRouter);
 app.use("/api/results", resultsRouter);
 app.use("/api/standards", standardsRouter);
+app.use("/api/swim-events", swimEventsRouter);
 
 app.use(errorHandler);
 
