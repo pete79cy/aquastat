@@ -17,6 +17,7 @@ import seasonsRouter from "./routes/seasons.js";
 import statsRouter from "./routes/stats.js";
 import aiExtractionsRouter from "./routes/aiExtractions.js";
 import documentsRouter from "./routes/documents.js";
+import usersRouter from "./routes/users.js";
 import { sql } from "./db/client.js";
 
 const app = express();
@@ -58,6 +59,7 @@ app.use("/api/seasons", seasonsRouter);
 app.use("/api/stats", statsRouter);
 app.use("/api/ai-extractions", aiExtractionsRouter);
 app.use("/api/documents", documentsRouter);
+app.use("/api/users", usersRouter);
 
 app.use(errorHandler);
 
