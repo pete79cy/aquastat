@@ -5,11 +5,22 @@ import { Card, CardBody } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { api } from "@/lib/api";
-import { Check, X, Sparkles, ShieldAlert, FileText } from "lucide-react";
+import { Check, X, Sparkles, ShieldAlert, FileText, AlertCircle, CheckCircle2 } from "lucide-react";
+
+type MappingResult = {
+  itemId: string;
+  ok: boolean;
+  entityType?: string;
+  entityId?: string;
+  action?: string;
+  error?: string;
+};
 
 export default function AIReview() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const [lastResult, setLastResult] = useState<MappingResult | null>(null);
+  const [bulkSummary, setBulkSummary] = useState<{ ok: number; failed: number } | null>(null);
 
   const extractionsQ = useQuery({
     queryKey: ["ai-extractions"],
@@ -28,21 +39,59 @@ export default function AIReview() {
   });
 
   const approveMut = useMutation({
-    mutationFn: (itemId: string) => api.aiExtractions.approve(itemId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["ai-extraction-items"] }),
+    mutationFn: async (itemId: string) => {
+      const res = await api.aiExtractions.approve(itemId);
+      return { itemId, res };
+    },
+    onSuccess: ({ itemId, res }) => {
+      queryClient.invalidateQueries({ queryKey: ["ai-extraction-items"] });
+      setBulkSummary(null);
+      setLastResult({
+        itemId,
+        ok: !!res.mapped,
+        entityType: res.mapped?.entityType,
+        entityId: res.mapped?.entityId,
+        action: res.mapped?.action,
+        error: res.mapError ?? undefined,
+      });
+    },
   });
+
   const rejectMut = useMutation({
     mutationFn: (itemId: string) => api.aiExtractions.reject(itemId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["ai-extraction-items"] }),
-  });
-  const bulkMut = useMutation({
-    mutationFn: () =>
-      selected ? api.aiExtractions.bulkApproveHigh(selected.id, 90) : Promise.resolve({ approved: 0 }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["ai-extraction-items"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["ai-extraction-items"] });
+      setLastResult(null);
+    },
   });
 
   const items = itemsQ.data ?? [];
   const pendingItems = items.filter((i) => i.status === "pending");
+  const highConfidenceCount = pendingItems.filter((i) => Number(i.confidence ?? 0) >= 90).length;
+
+  // Bulk approve runs sequentially through high-confidence pending items.
+  const bulkMut = useMutation({
+    mutationFn: async () => {
+      let ok = 0;
+      let failed = 0;
+      const targets = pendingItems.filter((i) => Number(i.confidence ?? 0) >= 90);
+      for (const item of targets) {
+        try {
+          const res = await api.aiExtractions.approve(item.id);
+          if (res.mapped) ok++;
+          else failed++;
+        } catch {
+          failed++;
+        }
+      }
+      return { ok, failed };
+    },
+    onSuccess: (summary) => {
+      queryClient.invalidateQueries({ queryKey: ["ai-extraction-items"] });
+      setBulkSummary(summary);
+      setLastResult(null);
+    },
+  });
 
   return (
     <div className="space-y-5">
@@ -58,6 +107,48 @@ export default function AIReview() {
           {t("aiReview.humanReviewBanner")}
         </div>
       </div>
+
+      {(lastResult || bulkSummary) && (
+        <div
+          className={
+            "rounded-md p-3 text-sm flex items-start gap-2 " +
+            (bulkSummary
+              ? bulkSummary.failed === 0
+                ? "bg-achieved-bg text-achieved"
+                : "bg-close-bg text-close"
+              : lastResult?.ok
+                ? "bg-achieved-bg text-achieved"
+                : "bg-warn-bg text-warn")
+          }
+        >
+          {bulkSummary ? (
+            <>
+              <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>
+                Bulk approve: <strong>{bulkSummary.ok}</strong> entities created/updated,{" "}
+                {bulkSummary.failed > 0 && (
+                  <>
+                    <strong>{bulkSummary.failed}</strong> με σφάλμα mapping (ελέγξτε reviewer notes).
+                  </>
+                )}
+              </span>
+            </>
+          ) : lastResult?.ok ? (
+            <>
+              <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>
+                Δημιουργήθηκε <strong>{lastResult.entityType}</strong> ({lastResult.action}).
+                ID: <code className="text-[11px]">{lastResult.entityId?.slice(0, 8)}</code>
+              </span>
+            </>
+          ) : (
+            <>
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>Approved αλλά mapping απέτυχε: <code className="text-[11px]">{lastResult?.error}</code></span>
+            </>
+          )}
+        </div>
+      )}
 
       <div className="grid lg:grid-cols-3 gap-5">
         {/* Queue */}
@@ -78,7 +169,11 @@ export default function AIReview() {
                   return (
                     <li
                       key={q.id}
-                      onClick={() => setSelectedId(q.id)}
+                      onClick={() => {
+                        setSelectedId(q.id);
+                        setLastResult(null);
+                        setBulkSummary(null);
+                      }}
                       className={
                         "rounded-md border p-3 cursor-pointer transition-colors " +
                         (isSelected
@@ -120,9 +215,9 @@ export default function AIReview() {
                   </div>
                   <h2 className="text-headline-md text-ink mt-0.5">{selected?.documentFilename ?? "—"}</h2>
                 </div>
-                {selected && pendingItems.length > 0 && (
+                {selected && highConfidenceCount > 0 && (
                   <Button variant="outline" size="sm" onClick={() => bulkMut.mutate()} disabled={bulkMut.isPending}>
-                    <Check className="w-4 h-4" /> {t("aiReview.actions.bulkApprove")} ({pendingItems.filter(i => Number(i.confidence ?? 0) >= 90).length})
+                    <Check className="w-4 h-4" /> {bulkMut.isPending ? "..." : `${t("aiReview.actions.bulkApprove")} (${highConfidenceCount})`}
                   </Button>
                 )}
               </div>
@@ -142,6 +237,10 @@ export default function AIReview() {
                       conf >= 90 ? "border-l-achieved" : conf >= 70 ? "border-l-close" : "border-l-warn";
                     const statusTone =
                       item.status === "approved" ? "achieved" : item.status === "rejected" ? "warn" : "neutral";
+                    const mappedLabel =
+                      item.mappedEntityType && item.mappedEntityId
+                        ? `${item.mappedEntityType} #${item.mappedEntityId.slice(0, 8)}`
+                        : null;
                     return (
                       <li
                         key={item.id}
@@ -154,8 +253,19 @@ export default function AIReview() {
                               {(item.extractedJson?.name as string)
                                 ?? (item.extractedJson?.eventLabel as string)
                                 ?? (item.extractedJson?.nameEl as string)
+                                ?? (item.extractedJson?.athleteName as string)
                                 ?? "(no label)"}
                             </div>
+                            {mappedLabel && (
+                              <div className="text-[11px] text-achieved mt-1 flex items-center gap-1">
+                                <CheckCircle2 className="w-3 h-3" /> Mapped → {mappedLabel}
+                              </div>
+                            )}
+                            {item.reviewerNotes && (
+                              <div className="text-[11px] text-warn mt-1 flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3" /> {item.reviewerNotes}
+                              </div>
+                            )}
                           </div>
                           <div className="flex items-center gap-1.5">
                             <Chip tone={tone}>{conf}%</Chip>

@@ -5,6 +5,8 @@ import { db } from "../db/client.js";
 import { aiExtractions, aiExtractedItems, documents, auditLogs } from "../db/schema.js";
 import { requireAuth, requireRole, tenantClubFilter } from "../middleware/auth.js";
 import { HttpError } from "../middleware/error.js";
+import { mapApprovedItem } from "../lib/mapping.js";
+import { logger } from "../lib/logger.js";
 
 const router = Router();
 router.use(requireAuth);
@@ -70,20 +72,56 @@ router.post(
   async (req, res, next) => {
     try {
       const itemId = String(req.params.itemId);
+
+      // Load item to know its type + payload
+      const [item] = await db
+        .select()
+        .from(aiExtractedItems)
+        .where(eq(aiExtractedItems.id, itemId))
+        .limit(1);
+      if (!item) throw new HttpError(404, "not_found");
+      if (item.status === "approved") {
+        res.json({ item, mapped: null, note: "already_approved" });
+        return;
+      }
+
+      // Try to map → create/update real entity
+      let mapped: Awaited<ReturnType<typeof mapApprovedItem>> | null = null;
+      let mapError: string | null = null;
+      try {
+        mapped = await mapApprovedItem(
+          db,
+          item.itemType,
+          item.extractedJson as Record<string, unknown>
+        );
+      } catch (err) {
+        mapError = (err as Error).message;
+        logger.warn({ itemId, itemType: item.itemType, err: mapError }, "ai_item_mapping_failed");
+      }
+
+      // Update item status + mappedEntity
       const [updated] = await db
         .update(aiExtractedItems)
-        .set({ status: "approved" })
+        .set({
+          status: "approved",
+          mappedEntityType: mapped?.entityType ?? null,
+          mappedEntityId: mapped?.entityId ?? null,
+          reviewerNotes: mapError ? `Mapped with error: ${mapError}` : null,
+        })
         .where(eq(aiExtractedItems.id, itemId))
         .returning();
-      if (!updated) throw new HttpError(404, "not_found");
+
+      // Audit
       await db.insert(auditLogs).values({
         userId: req.user!.sub,
-        action: "ai_item.approved",
+        action: mapped ? "ai_item.approved_and_mapped" : "ai_item.approved_no_mapping",
         entityType: "ai_extracted_item",
         entityId: itemId,
+        newValueJson: mapped ? { ...mapped } : { error: mapError },
         ip: req.ip ?? null,
       });
-      res.json({ item: updated });
+
+      res.json({ item: updated, mapped, mapError });
     } catch (e) {
       next(e);
     }

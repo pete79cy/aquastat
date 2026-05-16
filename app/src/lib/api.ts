@@ -190,7 +190,11 @@ export const api = {
     items: (extractionId: string) =>
       request<{ items: AiItem[] }>(`/ai-extractions/${extractionId}/items`),
     approve: (itemId: string) =>
-      request<{ item: AiItem }>(`/ai-extractions/items/${itemId}/approve`, { method: "POST" }),
+      request<{
+        item: AiItem;
+        mapped: { entityType: string; entityId: string; action: "created" | "updated" | "matched" } | null;
+        mapError: string | null;
+      }>(`/ai-extractions/items/${itemId}/approve`, { method: "POST" }),
     reject: (itemId: string, reason?: string) =>
       request<{ item: AiItem }>(`/ai-extractions/items/${itemId}/reject`, {
         method: "POST",
