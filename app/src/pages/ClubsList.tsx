@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardBody } from "@/components/ui/Card";
@@ -5,9 +6,11 @@ import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { api } from "@/lib/api";
 import { Plus } from "lucide-react";
+import { CreateClubDialog } from "@/components/clubs/CreateClubDialog";
 
 export default function ClubsList() {
   const { t } = useTranslation();
+  const [createOpen, setCreateOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["clubs"],
@@ -23,10 +26,12 @@ export default function ClubsList() {
           <h1 className="text-2xl lg:text-headline-lg font-semibold text-ink">{t("clubsList.title")}</h1>
           <p className="text-sm text-ink-muted mt-1">{t("clubsList.subtitle")}</p>
         </div>
-        <Button>
+        <Button onClick={() => setCreateOpen(true)}>
           <Plus className="w-4 h-4" /> {t("clubsList.newClub")}
         </Button>
       </header>
+
+      <CreateClubDialog open={createOpen} onOpenChange={setCreateOpen} />
 
       <Card>
         <CardBody className="!p-0">

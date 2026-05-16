@@ -111,7 +111,33 @@ export type CompetitionResult = {
   roundType: "heat" | "final" | "direct_final" | "training_race" | "unknown";
   verificationStatus: "pending" | "verified" | "rejected";
   eventDisplay: string;
+  distanceM: number;
+  stroke: "freestyle" | "backstroke" | "breaststroke" | "butterfly" | "medley";
+  gender: "male" | "female" | "mixed" | "any";
   createdAt: string;
+};
+
+export type TrainingResult = {
+  id: string;
+  timeMs: number;
+  date: string;
+  trainingType: "test" | "time_trial" | "race_simulation" | "set_result" | "coach_observation";
+  trainingContext: "normal" | "heavy_fatigue" | "taper" | "after_gym" | "before_competition" | "technical_test";
+  notes: string | null;
+  eventDisplay: string;
+  distanceM: number;
+  stroke: string;
+};
+
+export type AthleteStandard = {
+  id: string;
+  standardType: "domestic_qualification" | "penalty_limit" | "international" | "national_team" | "incentive";
+  gender: "male" | "female" | "mixed" | "any";
+  timeMs: number;
+  eventDisplay: string;
+  distanceM: number;
+  stroke: string;
+  categoryEl: string | null;
 };
 
 export type Standard = {
@@ -148,6 +174,10 @@ export const api = {
   clubs: {
     list: () => request<{ clubs: Club[] }>("/clubs"),
     get: (id: string) => request<{ club: Club }>(`/clubs/${id}`),
+    create: (payload: { name: string; shortName?: string; federationCode?: string; country?: string }) =>
+      request<{ club: Club }>("/clubs", { method: "POST", body: JSON.stringify(payload) }),
+    update: (id: string, payload: { name?: string; shortName?: string; federationCode?: string; country?: string }) =>
+      request<{ club: Club }>(`/clubs/${id}`, { method: "PATCH", body: JSON.stringify(payload) }),
   },
 
   athletes: {
@@ -155,6 +185,13 @@ export const api = {
     get: (id: string) => request<{ athlete: Athlete }>(`/athletes/${id}`),
     results: (id: string) =>
       request<{ results: CompetitionResult[] }>(`/athletes/${id}/results`),
+    trainingResults: (id: string) =>
+      request<{ results: TrainingResult[] }>(`/athletes/${id}/training-results`),
+    standardsComparison: (id: string) =>
+      request<{
+        standards: AthleteStandard[];
+        season: { id: string; name: string } | null;
+      }>(`/athletes/${id}/standards-comparison`),
   },
 
   competitions: {

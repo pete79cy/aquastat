@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { z } from "zod";
-import { and, eq, inArray, desc } from "drizzle-orm";
+import { and, eq, inArray, desc, or } from "drizzle-orm";
 import { db } from "../db/client.js";
 import {
   athletes, parentAthleteLinks, competitionResults, swimEvents, ageCategories,
+  qualificationStandards, seasons, trainingResults,
 } from "../db/schema.js";
 import { requireAuth, requireRole, tenantClubFilter } from "../middleware/auth.js";
 import { HttpError } from "../middleware/error.js";
@@ -99,6 +100,9 @@ router.get("/:id/results", async (req, res, next) => {
         roundType: competitionResults.roundType,
         verificationStatus: competitionResults.verificationStatus,
         eventDisplay: swimEvents.displayName,
+        distanceM: swimEvents.distanceM,
+        stroke: swimEvents.stroke,
+        gender: swimEvents.gender,
         createdAt: competitionResults.createdAt,
       })
       .from(competitionResults)
@@ -106,6 +110,90 @@ router.get("/:id/results", async (req, res, next) => {
       .where(eq(competitionResults.athleteId, String(req.params.id)))
       .orderBy(desc(competitionResults.createdAt));
     res.json({ results: list });
+  } catch (e) {
+    next(e);
+  }
+});
+
+/** Training results for athlete (chronological). */
+router.get("/:id/training-results", async (req, res, next) => {
+  try {
+    await assertAccess(req, String(req.params.id));
+    const list = await db
+      .select({
+        id: trainingResults.id,
+        timeMs: trainingResults.resultTimeMs,
+        date: trainingResults.date,
+        trainingType: trainingResults.trainingType,
+        trainingContext: trainingResults.trainingContext,
+        notes: trainingResults.notes,
+        eventDisplay: swimEvents.displayName,
+        distanceM: swimEvents.distanceM,
+        stroke: swimEvents.stroke,
+      })
+      .from(trainingResults)
+      .innerJoin(swimEvents, eq(swimEvents.id, trainingResults.swimEventId))
+      .where(eq(trainingResults.athleteId, String(req.params.id)))
+      .orderBy(desc(trainingResults.date));
+    res.json({ results: list });
+  } catch (e) {
+    next(e);
+  }
+});
+
+/**
+ * Qualification standards applicable to an athlete given their gender + age.
+ * Returns standards matched on (active season, gender or any, category matches
+ * athlete birth year). Frontend can compare against best times.
+ */
+router.get("/:id/standards-comparison", async (req, res, next) => {
+  try {
+    const athlete = await assertAccess(req, String(req.params.id));
+    const [active] = await db.select().from(seasons).where(eq(seasons.status, "active")).limit(1);
+    if (!active) {
+      res.json({ standards: [], season: null });
+      return;
+    }
+
+    const year = new Date(athlete.dateOfBirth).getUTCFullYear();
+    const cats = await db.select().from(ageCategories).where(eq(ageCategories.seasonId, active.id));
+    const applicableCategoryIds = cats
+      .filter((c) => {
+        const fromOk = c.birthYearFrom == null || year >= c.birthYearFrom;
+        const toOk = c.birthYearTo == null || year <= c.birthYearTo;
+        const genderOk = c.genderScope === "any" || c.genderScope === athlete.gender;
+        return fromOk && toOk && genderOk;
+      })
+      .map((c) => c.id);
+
+    const rows = await db
+      .select({
+        id: qualificationStandards.id,
+        standardType: qualificationStandards.standardType,
+        gender: qualificationStandards.gender,
+        timeMs: qualificationStandards.timeMs,
+        eventDisplay: swimEvents.displayName,
+        distanceM: swimEvents.distanceM,
+        stroke: swimEvents.stroke,
+        categoryEl: ageCategories.nameEl,
+      })
+      .from(qualificationStandards)
+      .innerJoin(swimEvents, eq(swimEvents.id, qualificationStandards.swimEventId))
+      .leftJoin(ageCategories, eq(ageCategories.id, qualificationStandards.categoryId))
+      .where(
+        and(
+          eq(qualificationStandards.seasonId, active.id),
+          or(
+            eq(qualificationStandards.gender, athlete.gender),
+            eq(qualificationStandards.gender, "any")
+          ),
+          applicableCategoryIds.length > 0
+            ? inArray(qualificationStandards.categoryId, applicableCategoryIds)
+            : eq(qualificationStandards.categoryId, qualificationStandards.categoryId) // no filter
+        )
+      );
+
+    res.json({ standards: rows, season: { id: active.id, name: active.name } });
   } catch (e) {
     next(e);
   }
