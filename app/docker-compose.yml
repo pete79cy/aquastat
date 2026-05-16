@@ -1,0 +1,18 @@
+# Local production sanity check before pushing to Coolify.
+# Run: docker compose up --build
+# Visit: http://localhost:8080
+
+services:
+  aquastat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: aquastat:local
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3

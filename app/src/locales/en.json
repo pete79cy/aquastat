@@ -1,0 +1,112 @@
+{
+  "app": {
+    "name": "Aquastat",
+    "tagline": "Track, analyze and target swimming performance"
+  },
+  "auth": {
+    "login": "Login",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "loginAs": "Login as",
+    "emailPlaceholder": "coach@aquastat.cy",
+    "subtitle": "For swimming clubs, coaches and parents"
+  },
+  "nav": {
+    "home": "Home",
+    "athletes": "Athletes",
+    "events": "Events",
+    "results": "Results",
+    "training": "Training",
+    "standards": "Standards",
+    "season": "Season",
+    "aiReview": "AI Review",
+    "reports": "Reports",
+    "profile": "Profile",
+    "settings": "Settings",
+    "myChild": "My child",
+    "progress": "Progress"
+  },
+  "roles": {
+    "federation_admin": "Federation Admin",
+    "club_admin": "Club Admin",
+    "coach": "Coach",
+    "parent": "Parent"
+  },
+  "coachDashboard": {
+    "title": "Coach Dashboard",
+    "subtitle": "{{club}} · Season {{season}}",
+    "myAthletes": "My athletes",
+    "pbsThisMonth": "PBs this month",
+    "closeToQualification": "Close to qualification",
+    "trainingTests": "Training tests",
+    "performanceAlerts": "Performance alerts",
+    "upcomingCompetitions": "Upcoming competitions",
+    "athletesOverview": "Athletes overview",
+    "addResult": "Add result",
+    "viewAthletes": "View athletes",
+    "events": "events",
+    "swimmers": "swimmers",
+    "categoryBoysU15": "Boys 12",
+    "categoryGirlsU13": "Girls 13",
+    "categoryJuniors": "Juniors"
+  },
+  "parentDashboard": {
+    "title": "My child's progress",
+    "latestResult": "Latest result",
+    "personalBest": "Personal best",
+    "nextCompetition": "Next competition",
+    "daysToGo": "days to go",
+    "progressOverTime": "Progress over time",
+    "lowerIsBetter": "Lower time = better performance",
+    "upcomingTarget": "Upcoming target",
+    "current": "Current",
+    "limit": "Limit",
+    "recentResults": "Recent results",
+    "viewAll": "View all",
+    "improvement": "improvement",
+    "gapToQualify": "to qualify",
+    "coach": "Coach",
+    "yearsOld": "years old"
+  },
+  "athleteProfile": {
+    "title": "Athlete Profile",
+    "active": "Active",
+    "recordResult": "Record Result",
+    "editProfile": "Edit Profile",
+    "bestTime": "Best time",
+    "tabs": {
+      "overview": "Overview",
+      "results": "Results",
+      "training": "Training",
+      "progress": "Progress",
+      "standards": "Standards",
+      "notes": "Notes"
+    },
+    "topPerformances": "Top Performances",
+    "recentActivity": "Recent Activity",
+    "qualificationProgress": "Qualification Progress",
+    "shortCourse": "Short course (25m)",
+    "longCourse": "Long course (50m)",
+    "pbBadge": "PB",
+    "achieved": "Achieved",
+    "nearTarget": "Near target",
+    "notAchieved": "Not achieved"
+  },
+  "events": {
+    "freestyle": "Freestyle",
+    "backstroke": "Backstroke",
+    "breaststroke": "Breaststroke",
+    "butterfly": "Butterfly",
+    "medley": "Individual Medley"
+  },
+  "common": {
+    "search": "Search",
+    "filter": "Filter",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "language": "Language",
+    "logout": "Logout"
+  }
+}

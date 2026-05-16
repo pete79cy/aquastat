@@ -1,0 +1,112 @@
+{
+  "app": {
+    "name": "Aquastat",
+    "tagline": "Καταγραφή, ανάλυση & στόχοι κολυμβητικών επιδόσεων"
+  },
+  "auth": {
+    "login": "Σύνδεση",
+    "email": "Email",
+    "password": "Κωδικός",
+    "forgotPassword": "Ξεχάσατε τον κωδικό;",
+    "loginAs": "Σύνδεση ως",
+    "emailPlaceholder": "coach@aquastat.cy",
+    "subtitle": "Για κολυμβητικούς ομίλους, προπονητές και γονείς"
+  },
+  "nav": {
+    "home": "Αρχική",
+    "athletes": "Αθλητές",
+    "events": "Αγώνες",
+    "results": "Αποτελέσματα",
+    "training": "Προπονήσεις",
+    "standards": "Όρια",
+    "season": "Σαιζόν",
+    "aiReview": "AI Review",
+    "reports": "Αναφορές",
+    "profile": "Προφίλ",
+    "settings": "Ρυθμίσεις",
+    "myChild": "Το παιδί μου",
+    "progress": "Πρόοδος"
+  },
+  "roles": {
+    "federation_admin": "Διαχειριστής Ομοσπονδίας",
+    "club_admin": "Διαχειριστής Ομίλου",
+    "coach": "Προπονητής",
+    "parent": "Γονέας"
+  },
+  "coachDashboard": {
+    "title": "Πίνακας Προπονητή",
+    "subtitle": "{{club}} · Σαιζόν {{season}}",
+    "myAthletes": "Αθλητές μου",
+    "pbsThisMonth": "PB αυτό τον μήνα",
+    "closeToQualification": "Κοντά σε όριο",
+    "trainingTests": "Tests προπόνησης",
+    "performanceAlerts": "Ειδοποιήσεις απόδοσης",
+    "upcomingCompetitions": "Επερχόμενοι αγώνες",
+    "athletesOverview": "Επισκόπηση αθλητών",
+    "addResult": "Νέα επίδοση",
+    "viewAthletes": "Δείτε αθλητές",
+    "events": "αγωνίσματα",
+    "swimmers": "αθλητές",
+    "categoryBoysU15": "Παμπαίδες Α´",
+    "categoryGirlsU13": "Παγκορασίδες Β´",
+    "categoryJuniors": "Νέοι/Νεανίδες"
+  },
+  "parentDashboard": {
+    "title": "Πρόοδος παιδιού",
+    "latestResult": "Τελευταία επίδοση",
+    "personalBest": "Ατομικό ρεκόρ",
+    "nextCompetition": "Επόμενος αγώνας",
+    "daysToGo": "ημέρες ακόμα",
+    "progressOverTime": "Πρόοδος στον χρόνο",
+    "lowerIsBetter": "Μικρότερος χρόνος = καλύτερη επίδοση",
+    "upcomingTarget": "Επόμενος στόχος",
+    "current": "Τρέχον",
+    "limit": "Όριο",
+    "recentResults": "Πρόσφατα αποτελέσματα",
+    "viewAll": "Όλα",
+    "improvement": "βελτίωση",
+    "gapToQualify": "για πρόκριση",
+    "coach": "Προπονητής",
+    "yearsOld": "ετών"
+  },
+  "athleteProfile": {
+    "title": "Καρτέλα αθλητή",
+    "active": "Ενεργός",
+    "recordResult": "Καταχώριση επίδοσης",
+    "editProfile": "Επεξεργασία",
+    "bestTime": "Καλύτερος χρόνος",
+    "tabs": {
+      "overview": "Επισκόπηση",
+      "results": "Αγωνιστικά",
+      "training": "Προπονήσεις",
+      "progress": "Πρόοδος",
+      "standards": "Όρια",
+      "notes": "Σημειώσεις"
+    },
+    "topPerformances": "Κορυφαίες επιδόσεις",
+    "recentActivity": "Πρόσφατη δραστηριότητα",
+    "qualificationProgress": "Πρόοδος προκρίσεων",
+    "shortCourse": "Πισίνα 25μ",
+    "longCourse": "Πισίνα 50μ",
+    "pbBadge": "PB",
+    "achieved": "Επιτεύχθηκε",
+    "nearTarget": "Κοντά στο όριο",
+    "notAchieved": "Δεν επιτεύχθηκε"
+  },
+  "events": {
+    "freestyle": "Ελεύθερο",
+    "backstroke": "Ύπτιο",
+    "breaststroke": "Πρόσθιο",
+    "butterfly": "Πεταλούδα",
+    "medley": "Μικτή Ατομική"
+  },
+  "common": {
+    "search": "Αναζήτηση",
+    "filter": "Φίλτρα",
+    "save": "Αποθήκευση",
+    "cancel": "Άκυρο",
+    "loading": "Φόρτωση...",
+    "language": "Γλώσσα",
+    "logout": "Αποσύνδεση"
+  }
+}
