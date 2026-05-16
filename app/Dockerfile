@@ -4,9 +4,13 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 
+# Force install of devDependencies even when Coolify sets NODE_ENV=production
+# at build time. @types/node, vite, tsc all live there.
+ENV NODE_ENV=development
+
 # Install deps first (better layer caching)
 COPY package.json package-lock.json* ./
-RUN npm ci --no-audit --no-fund
+RUN npm ci --include=dev --no-audit --no-fund
 
 # Build
 COPY . .
