@@ -131,6 +131,7 @@ export const users = pgTable(
     role: roleEnum().notNull(),
     preferredLocale: localeEnum().notNull().default("el"),
     isActive: boolean().notNull().default(true),
+    mustChangePassword: boolean().notNull().default(false),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },

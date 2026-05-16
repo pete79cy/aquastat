@@ -31,7 +31,11 @@ export default function Login() {
     setSubmitting(true);
     try {
       const user = await login(email, password);
-      navigate(roleHomePath[user.role] ?? "/", { replace: true });
+      if (user.mustChangePassword) {
+        navigate("/change-password", { replace: true });
+      } else {
+        navigate(roleHomePath[user.role] ?? "/", { replace: true });
+      }
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         setError("Λάθος email ή κωδικός.");

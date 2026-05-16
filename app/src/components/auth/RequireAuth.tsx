@@ -17,6 +17,11 @@ export function RequireAuth({ roles, children }: { roles?: Role[]; children: Rea
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
+  // Force password change before accessing any protected page
+  if (user.mustChangePassword && location.pathname !== "/change-password") {
+    return <Navigate to="/change-password" replace />;
+  }
+
   if (roles && !roles.includes(user.role)) {
     // Wrong role for this section — send to their home
     const homeMap: Record<string, string> = {

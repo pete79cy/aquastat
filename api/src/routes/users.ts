@@ -29,6 +29,8 @@ const createSchema = z.object({
   clubId: z.uuid().optional(),
   preferredLocale: z.enum(["el", "en"]).default("el"),
   password: z.string().min(10).optional(),
+  /** If true (default), user must change password on first login. */
+  forceChangeOnFirstLogin: z.boolean().default(true),
 });
 
 /**
@@ -90,6 +92,7 @@ router.post("/", requireRole("federation_admin", "club_admin"), async (req, res,
         clubId: payload.role === "federation_admin" ? null : (payload.clubId ?? null),
         preferredLocale: payload.preferredLocale,
         isActive: true,
+        mustChangePassword: payload.forceChangeOnFirstLogin,
       })
       .returning();
 

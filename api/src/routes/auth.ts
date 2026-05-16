@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { users, passwordResetTokens, auditLogs } from "../db/schema.js";
 import { hashPassword, verifyPassword, signJwt } from "../lib/auth.js";
+import type { Request as ExpressReq } from "express";
 import { requireAuth } from "../middleware/auth.js";
 import { HttpError } from "../middleware/error.js";
 import { env } from "../lib/env.js";
@@ -57,6 +58,7 @@ router.post("/login", async (req, res, next) => {
         role: user.role,
         clubId: user.clubId,
         preferredLocale: user.preferredLocale,
+        mustChangePassword: user.mustChangePassword,
       },
     });
   } catch (e) {
@@ -81,6 +83,7 @@ router.get("/me", requireAuth, async (req, res, next) => {
       clubId: user.clubId,
       preferredLocale: user.preferredLocale,
       isActive: user.isActive,
+      mustChangePassword: user.mustChangePassword,
     });
   } catch (e) {
     next(e);
@@ -149,6 +152,41 @@ router.post("/reset-password", async (req, res, next) => {
     await db.insert(auditLogs).values({
       userId: record.userId,
       action: "auth.password_reset.completed",
+      ip: req.ip ?? null,
+    });
+
+    res.status(204).end();
+  } catch (e) {
+    next(e);
+  }
+});
+
+// ─── Change password (authenticated user, own password) ────────────────────
+const changePwSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(10, "Password must be at least 10 characters"),
+});
+
+router.post("/change-password", requireAuth, async (req: ExpressReq, res, next) => {
+  try {
+    const { currentPassword, newPassword } = changePwSchema.parse(req.body);
+    if (currentPassword === newPassword) {
+      throw new HttpError(400, "new_password_must_differ");
+    }
+    const [user] = await db.select().from(users).where(eq(users.id, req.user!.sub)).limit(1);
+    if (!user) throw new HttpError(404, "user_not_found");
+    const ok = await verifyPassword(currentPassword, user.passwordHash);
+    if (!ok) throw new HttpError(401, "invalid_current_password");
+
+    const passwordHash = await hashPassword(newPassword);
+    await db
+      .update(users)
+      .set({ passwordHash, mustChangePassword: false, updatedAt: new Date() })
+      .where(eq(users.id, user.id));
+
+    await db.insert(auditLogs).values({
+      userId: user.id,
+      action: "auth.password_changed",
       ip: req.ip ?? null,
     });
 

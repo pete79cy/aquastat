@@ -15,6 +15,13 @@
       "when": 1778964145260,
       "tag": "0001_add_competition_to_documents",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778966391493,
+      "tag": "0002_add_must_change_password",
+      "breakpoints": true
     }
   ]
 }

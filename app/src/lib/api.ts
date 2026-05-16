@@ -67,6 +67,7 @@ export type AuthUser = {
   role: Role;
   clubId: string | null;
   preferredLocale: "el" | "en";
+  mustChangePassword?: boolean;
 };
 
 export type Club = {
@@ -169,6 +170,32 @@ export const api = {
       request<void>("/auth/forgot-password", { method: "POST", body: JSON.stringify({ email }) }),
     resetPassword: (token: string, newPassword: string) =>
       request<void>("/auth/reset-password", { method: "POST", body: JSON.stringify({ token, newPassword }) }),
+    changePassword: (currentPassword: string, newPassword: string) =>
+      request<void>("/auth/change-password", {
+        method: "POST",
+        body: JSON.stringify({ currentPassword, newPassword }),
+      }),
+  },
+
+  users: {
+    list: () => request<{ users: AuthUser[] }>("/users"),
+    create: (payload: {
+      name: string;
+      email: string;
+      role: Role;
+      clubId?: string;
+      password?: string;
+      forceChangeOnFirstLogin?: boolean;
+    }) =>
+      request<{ user: AuthUser; tempPassword: string | null }>("/users", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      }),
+    setActive: (id: string, isActive: boolean) =>
+      request<{ user: AuthUser }>(`/users/${id}/active`, {
+        method: "PATCH",
+        body: JSON.stringify({ isActive }),
+      }),
   },
 
   clubs: {

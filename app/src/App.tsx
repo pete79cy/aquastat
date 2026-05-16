@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 import Login from "@/pages/Login";
+import ChangePassword from "@/pages/ChangePassword";
 import CoachDashboard from "@/pages/CoachDashboard";
 import ParentDashboard from "@/pages/ParentDashboard";
 import AthleteProfile from "@/pages/AthleteProfile";
@@ -21,6 +22,7 @@ import Standards from "@/pages/Standards";
 import AgeCategories from "@/pages/AgeCategories";
 import AthletesList from "@/pages/AthletesList";
 import ClubsList from "@/pages/ClubsList";
+import UsersList from "@/pages/UsersList";
 
 function Placeholder({ title }: { title: string }) {
   return (
@@ -51,6 +53,14 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login />} />
+            <Route
+              path="/change-password"
+              element={
+                <RequireAuth>
+                  <ChangePassword />
+                </RequireAuth>
+              }
+            />
 
             <Route
               element={
@@ -96,7 +106,7 @@ export default function App() {
               <Route path="/admin" element={<ClubAdminDashboard />} />
               <Route path="/admin/athletes" element={<AthletesList />} />
               <Route path="/admin/athletes/:id" element={<AthleteProfile />} />
-              <Route path="/admin/users" element={<Placeholder title="Διαχείριση χρηστών" />} />
+              <Route path="/admin/users" element={<UsersList />} />
               <Route path="/admin/competitions" element={<CompetitionCalendar />} />
               <Route path="/admin/competitions/:id" element={<CompetitionDetail />} />
               <Route path="/admin/add-result" element={<AddCompetitionResult />} />
@@ -116,6 +126,7 @@ export default function App() {
             >
               <Route path="/federation" element={<FederationDashboard />} />
               <Route path="/federation/clubs" element={<ClubsList />} />
+              <Route path="/federation/users" element={<UsersList />} />
               <Route path="/federation/season" element={<SeasonSetup />} />
               <Route path="/federation/categories" element={<AgeCategories />} />
               <Route path="/federation/standards" element={<Standards />} />
