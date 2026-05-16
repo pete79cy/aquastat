@@ -4,11 +4,18 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 
+# Force install of devDependencies even when Coolify sets NODE_ENV=production
+# at build time. tsc & tsx live there.
+ENV NODE_ENV=development
+
 COPY package.json package-lock.json* ./
-RUN npm install --no-audit --no-fund
+RUN npm ci --include=dev --no-audit --no-fund
 
 COPY . .
-RUN npm run build && npm prune --production
+RUN npm run build
+
+# Drop dev deps from node_modules for slimmer runtime copy
+RUN npm prune --omit=dev
 
 # ─── Stage 2: runtime ──────────────────────────────────────────────
 FROM node:22-alpine AS runtime
