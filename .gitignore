@@ -32,5 +32,9 @@ Thumbs.db
 .cache/
 .tmp/
 
+# API specific
+api/dist/
+api/.env
+
 # Project artifacts not needed in git
 stitch_ui_review/

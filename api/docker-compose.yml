@@ -1,0 +1,42 @@
+# Local production sanity check.
+# Run: docker compose up --build
+# Then run migrations once: docker compose exec api npm run db:migrate && npm run db:seed
+# Visit: http://localhost:4000/healthz
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: aquastat
+      POSTGRES_PASSWORD: aquastat
+      POSTGRES_DB: aquastat
+    volumes:
+      - aquastat-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aquastat -d aquastat"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: aquastat-api:local
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgres://aquastat:aquastat@db:5432/aquastat
+      JWT_SECRET: dev_only_secret_change_in_prod_must_be_32_chars
+      JWT_EXPIRES_IN: 7d
+      CORS_ORIGINS: http://localhost:5173,https://aquastat.pakkou.cloud
+      LOG_LEVEL: info
+    ports:
+      - "4000:4000"
+    restart: unless-stopped
+
+volumes:
+  aquastat-pg:
