@@ -14,6 +14,12 @@ const envSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
   SMTP_FROM: z.string().optional(),
+  // AI extraction
+  ANTHROPIC_API_KEY: z.string().optional(),
+  ANTHROPIC_MODEL: z.string().default("claude-opus-4-6"),
+  // Uploads
+  UPLOAD_DIR: z.string().default("/data/uploads"),
+  MAX_UPLOAD_BYTES: z.coerce.number().int().default(26214400),
 });
 
 const parsed = envSchema.safeParse(process.env);

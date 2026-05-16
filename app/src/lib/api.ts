@@ -187,6 +187,53 @@ export const api = {
 
   aiExtractions: {
     list: () => request<{ extractions: AiExtractionItem[] }>("/ai-extractions"),
+    items: (extractionId: string) =>
+      request<{ items: AiItem[] }>(`/ai-extractions/${extractionId}/items`),
+    approve: (itemId: string) =>
+      request<{ item: AiItem }>(`/ai-extractions/items/${itemId}/approve`, { method: "POST" }),
+    reject: (itemId: string, reason?: string) =>
+      request<{ item: AiItem }>(`/ai-extractions/items/${itemId}/reject`, {
+        method: "POST",
+        body: JSON.stringify(reason ? { reason } : {}),
+      }),
+    edit: (itemId: string, extractedJson: Record<string, unknown>, reviewerNotes?: string) =>
+      request<{ item: AiItem }>(`/ai-extractions/items/${itemId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ extractedJson, reviewerNotes }),
+      }),
+    bulkApproveHigh: (extractionId: string, minConfidence = 90) =>
+      request<{ approved: number }>(`/ai-extractions/${extractionId}/bulk-approve-high`, {
+        method: "POST",
+        body: JSON.stringify({ minConfidence }),
+      }),
+  },
+
+  documents: {
+    list: () => request<{ documents: Document[] }>("/documents"),
+    get: (id: string) => request<{ document: Document }>(`/documents/${id}`),
+    upload: async (file: File, documentType: string) => {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("documentType", documentType);
+      const token = getToken();
+      const res = await fetch(`${API_BASE}/documents/upload`, {
+        method: "POST",
+        body: fd,
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        credentials: "include",
+      });
+      if (!res.ok) {
+        let body: { error?: string; message?: string } = {};
+        try { body = await res.json(); } catch { /* ignore */ }
+        throw new ApiError(res.status, body.error ?? "upload_failed", body.message);
+      }
+      return (await res.json()) as { document: Document };
+    },
+    process: (id: string) =>
+      request<{ extraction: { id: string }; itemCount: number; confidence: number }>(
+        `/documents/${id}/process`,
+        { method: "POST" }
+      ),
   },
 
   results: {
@@ -265,6 +312,33 @@ export type AiExtractionItem = {
   createdAt: string;
   documentId: string;
   documentFilename: string;
+  documentType: "season_proclamation" | "results_pdf" | "standards_pdf" | "records_pdf" | "other";
   documentScope: "federation" | "club";
   documentClubId: string | null;
+};
+
+export type AiItem = {
+  id: string;
+  aiExtractionId: string;
+  itemType: string;
+  extractedJson: Record<string, unknown>;
+  mappedEntityType: string | null;
+  mappedEntityId: string | null;
+  confidence: string | null;
+  status: "pending" | "approved" | "rejected" | "edited";
+  reviewerNotes: string | null;
+};
+
+export type Document = {
+  id: string;
+  scope: "federation" | "club";
+  clubId: string | null;
+  filename: string;
+  originalFilename: string;
+  fileType: "pdf" | "doc" | "docx" | "other";
+  documentType: "season_proclamation" | "results_pdf" | "standards_pdf" | "records_pdf" | "other";
+  storageUrl: string;
+  uploadedBy: string | null;
+  uploadedAt: string;
+  processingStatus: "uploaded" | "processing" | "completed" | "failed" | "needs_review";
 };
