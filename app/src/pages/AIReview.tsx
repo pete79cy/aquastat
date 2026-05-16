@@ -5,7 +5,9 @@ import { Card, CardBody } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { api } from "@/lib/api";
-import { Check, X, Sparkles, ShieldAlert, FileText, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Check, X, Sparkles, ShieldAlert, FileText, AlertCircle, CheckCircle2, Edit3, RotateCw } from "lucide-react";
+import { EditItemDialog } from "@/components/ai/EditItemDialog";
+import type { AiItem } from "@/lib/api";
 
 type MappingResult = {
   itemId: string;
@@ -21,6 +23,8 @@ export default function AIReview() {
   const queryClient = useQueryClient();
   const [lastResult, setLastResult] = useState<MappingResult | null>(null);
   const [bulkSummary, setBulkSummary] = useState<{ ok: number; failed: number } | null>(null);
+  const [editTarget, setEditTarget] = useState<AiItem | null>(null);
+  const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected" | "edited">("pending");
 
   const extractionsQ = useQuery({
     queryKey: ["ai-extractions"],
@@ -68,6 +72,14 @@ export default function AIReview() {
   const items = itemsQ.data ?? [];
   const pendingItems = items.filter((i) => i.status === "pending");
   const highConfidenceCount = pendingItems.filter((i) => Number(i.confidence ?? 0) >= 90).length;
+  const visibleItems = filter === "all" ? items : items.filter((i) => i.status === filter);
+  const counts = {
+    all: items.length,
+    pending: items.filter((i) => i.status === "pending").length,
+    approved: items.filter((i) => i.status === "approved").length,
+    rejected: items.filter((i) => i.status === "rejected").length,
+    edited: items.filter((i) => i.status === "edited").length,
+  };
 
   // Bulk approve runs sequentially through high-confidence pending items.
   const bulkMut = useMutation({
@@ -229,8 +241,30 @@ export default function AIReview() {
               ) : items.length === 0 ? (
                 <div className="text-sm text-ink-muted text-center py-8">Δεν υπάρχουν items σε αυτό το extraction.</div>
               ) : (
+                <>
+                  <div className="flex items-center gap-2 mb-4 text-xs flex-wrap">
+                    {(["pending", "approved", "edited", "rejected", "all"] as const).map((f) => (
+                      <button
+                        key={f}
+                        onClick={() => setFilter(f)}
+                        className={
+                          "px-2.5 py-1 rounded-full font-semibold transition-colors " +
+                          (filter === f
+                            ? "bg-primary text-primary-fg"
+                            : "bg-surface-2 text-ink-muted hover:bg-surface-3")
+                        }
+                      >
+                        {f} · {counts[f]}
+                      </button>
+                    ))}
+                  </div>
+                  {visibleItems.length === 0 ? (
+                    <div className="text-sm text-ink-muted text-center py-8">
+                      Δεν υπάρχουν items στην κατάσταση "{filter}".
+                    </div>
+                  ) : (
                 <ul className="space-y-3">
-                  {items.map((item) => {
+                  {visibleItems.map((item) => {
                     const conf = Math.round(Number(item.confidence ?? 0));
                     const tone = conf >= 90 ? "achieved" : conf >= 70 ? "close" : "warn";
                     const borderColor =
@@ -277,10 +311,13 @@ export default function AIReview() {
                           {JSON.stringify(item.extractedJson, null, 2)}
                         </pre>
 
-                        {item.status === "pending" && (
-                          <div className="flex justify-end gap-2 pt-1">
+                        {(item.status === "pending" || item.status === "edited") && (
+                          <div className="flex justify-end gap-2 pt-1 flex-wrap">
                             <Button variant="outline" size="sm" onClick={() => rejectMut.mutate(item.id)} disabled={rejectMut.isPending}>
                               <X className="w-4 h-4" /> {t("aiReview.actions.reject")}
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={() => setEditTarget(item)}>
+                              <Edit3 className="w-4 h-4" /> {t("aiReview.actions.edit")}
                             </Button>
                             <Button size="sm" onClick={() => approveMut.mutate(item.id)} disabled={approveMut.isPending}>
                               <Check className="w-4 h-4" /> {t("aiReview.actions.approve")}
@@ -291,11 +328,22 @@ export default function AIReview() {
                     );
                   })}
                 </ul>
+                  )}
+                </>
               )}
             </CardBody>
           </Card>
         </div>
       </div>
+
+      <EditItemDialog
+        item={editTarget}
+        open={!!editTarget}
+        onOpenChange={(open) => !open && setEditTarget(null)}
+        onSavedAndApproved={() => {
+          setLastResult({ itemId: editTarget?.id ?? "", ok: true, action: "created" });
+        }}
+      />
     </div>
   );
 }
