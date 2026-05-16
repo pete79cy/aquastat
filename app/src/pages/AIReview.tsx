@@ -66,7 +66,7 @@ export default function AIReview() {
                   <div className="text-xs text-ink-subtle flex items-center gap-1">
                     <Sparkles className="w-3 h-3" /> {t("aiReview.extractionReview")}
                   </div>
-                  <h2 className="text-headline-md text-ink mt-0.5">Προκήρυξη_ΚΟΕΚ_2025-2026.pdf</h2>
+                  <h2 className="text-headline-md text-ink mt-0.5">Προκήρυξη_Σαιζόν_2025-2026.pdf</h2>
                 </div>
                 <Button variant="outline" size="sm">
                   <Check className="w-4 h-4" /> {t("aiReview.actions.bulkApprove")}

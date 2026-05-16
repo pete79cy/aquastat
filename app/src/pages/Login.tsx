@@ -121,6 +121,9 @@ export default function Login() {
         </div>
 
         <p className="text-center text-xs text-white/80 mt-5">{t("auth.subtitle")}</p>
+        <p className="text-center text-[10px] text-white/60 mt-2 max-w-sm mx-auto leading-relaxed px-2">
+          {t("app.disclaimer")}
+        </p>
       </div>
     </div>
   );

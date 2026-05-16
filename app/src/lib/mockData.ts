@@ -8,7 +8,7 @@ export const me = {
   coach: { name: "Μάριος Παπαδόπουλος", club: "ΝΟ Λεμεσού", season: "2025–2026" },
   parent: { name: "Ελένη Γεωργίου", club: "ΝΟ Λεμεσού" },
   clubAdmin: { name: "Σοφία Δημητρίου", club: "ΝΟ Λεμεσού" },
-  federationAdmin: { name: "Νίκος Παπαδόπουλος", club: "ΚΟΕΚ" },
+  federationAdmin: { name: "Νίκος Παπαδόπουλος", club: "—" },
 };
 
 export const clubs = [
@@ -74,7 +74,7 @@ export const upcomingCompetitions = [
   {
     id: "c1",
     date: { day: "24", month: "ΟΚΤ" },
-    name: "Παγκύπριο Πρωτάθλημα Ανοιχτής Κατηγορίας",
+    name: "Πρωτάθλημα Ανοιχτής Κατηγορίας",
     location: "Δημ. Κολυμβητήριο Λεμεσού",
     events: 12,
     swimmers: 18,
@@ -82,7 +82,7 @@ export const upcomingCompetitions = [
   {
     id: "c2",
     date: { day: "02", month: "ΝΟΕ" },
-    name: "Χειμερινό Πρωτάθλημα ΚΟΕΚ",
+    name: "Χειμερινό Πρωτάθλημα",
     location: "Ολυμπιακό Κολ. Λευκωσίας",
     events: 8,
     swimmers: 6,
@@ -98,7 +98,7 @@ export const childProgress = {
   latest: { eventLabel: "100μ Πεταλούδα", timeMs: 65_230, improvementMs: -450 },
   pb: { timeMs: 65_230, setOn: "2026-04-12" },
   nextCompetition: {
-    name: "Παγκύπριοι Αγώνες Νεολαίας",
+    name: "Αγώνες Νεολαίας",
     date: "20 Ιουλίου 2026 · Ολυμπιακό Κολ.",
     daysToGo: 12,
   },
@@ -145,12 +145,12 @@ export const athleteCard = {
     { eventLabel: "100μ Ελεύθερο", pool: "Πισίνα 50μ", timeMs: 54_910 },
   ],
   recentActivity: [
-    { kind: "result" as const, title: "Παγκύπριοι Παμπαίδων", detail: "Νέο PB 100μ Πεταλούδα (58.14). 1η θέση στην κατηγορία.", ago: "πριν 2 ημέρες" },
+    { kind: "result" as const, title: "Πρωτάθλημα Παμπαίδων", detail: "Νέο PB 100μ Πεταλούδα (58.14). 1η θέση στην κατηγορία.", ago: "πριν 2 ημέρες" },
     { kind: "training" as const, title: "Πρωινή προπόνηση", detail: "Εκρηκτικά starts & υποβρύχια. Συνολική απόσταση 4.5km.", ago: "χθες" },
-    { kind: "milestone" as const, title: "Όριο πρόκρισης", detail: "50μ Ελεύθερο: πέρασε το όριο για τους Παγκύπριους Ανοιχτής.", ago: "πριν 4 ημέρες" },
+    { kind: "milestone" as const, title: "Όριο πρόκρισης", detail: "50μ Ελεύθερο: πέρασε το όριο για την Ανοιχτή Κατηγορία.", ago: "πριν 4 ημέρες" },
   ],
   qualificationProgress: [
-    { title: "Παγκύπριο Πρωτάθλημα", pct: 92, currentMs: 24_820, targetMs: 24_500, eventLabel: "50μ Ελεύθερο" },
+    { title: "Ανοιχτό Πρωτάθλημα", pct: 92, currentMs: 24_820, targetMs: 24_500, eventLabel: "50μ Ελεύθερο" },
     { title: "Πρόκριση Νεαρών Ταλέντων", pct: 85, currentMs: 65_230, targetMs: 64_500, eventLabel: "100μ Πεταλούδα" },
   ],
 };
@@ -175,7 +175,7 @@ export const swimEvents = [
 export const competitions = [
   {
     id: "comp1",
-    name: "Παγκύπριο Πρωτάθλημα Ανοιχτής Κατηγορίας",
+    name: "Πρωτάθλημα Ανοιχτής Κατηγορίας",
     startDate: "2026-10-24",
     endDate: "2026-10-26",
     location: "Λεμεσός",
@@ -189,7 +189,7 @@ export const competitions = [
   },
   {
     id: "comp2",
-    name: "Χειμερινό Πρωτάθλημα ΚΟΕΚ",
+    name: "Χειμερινό Πρωτάθλημα",
     startDate: "2026-11-02",
     endDate: "2026-11-04",
     location: "Λευκωσία",
@@ -217,7 +217,7 @@ export const competitions = [
   },
   {
     id: "comp4",
-    name: "Παγκύπριοι Αγώνες Νεολαίας",
+    name: "Αγώνες Νεολαίας",
     startDate: "2026-07-18",
     endDate: "2026-07-20",
     location: "Λευκωσία",
@@ -233,7 +233,7 @@ export const competitions = [
 
 export const competitionDetail = {
   ...competitions[0],
-  description: "Επίσημος αγώνας ΚΟΕΚ ανοιχτής κατηγορίας. Πρόκριση για Παγκύπρια εθνική ομάδα.",
+  description: "Αγώνας ανοιχτής κατηγορίας. Δυνατότητα πρόκρισης για επόμενες διοργανώσεις.",
   program: [
     { day: "Σάββατο 24 Οκτ", session: "Πρωινή", time: "09:00", events: ["50μ Ελεύθερο Α", "100μ Πρόσθιο Γ", "200μ Πεταλούδα Α", "400μ Μ.Α. Γ"] },
     { day: "Σάββατο 24 Οκτ", session: "Απογευματινή", time: "17:00", events: ["50μ Ελεύθερο Γ (Τελικός)", "200μ Ύπτιο Α", "100μ Πεταλούδα Γ"] },
@@ -282,7 +282,7 @@ export const standards = [
 export const aiQueue = [
   {
     id: "ai1",
-    document: "Προκήρυξη_ΚΟΕΚ_2025-2026.pdf",
+    document: "Προκήρυξη_Σαιζόν_2025-2026.pdf",
     type: "season_proclamation" as const,
     extractedItems: 142,
     pending: 18,

@@ -6,6 +6,8 @@
 
 This file overrides/extends v1.0. Where v1.0 conflicts with this patch, v1.1 wins.
 
+> **Independence statement.** Aquastat is an independent product for swimming clubs and is **not** affiliated with, endorsed by, or operating under the auspices of any swimming federation (including the Cyprus Swimming Federation / ΚΟΕΚ). It is a private platform that clubs can adopt voluntarily. Any references in v1.0 to "the federation" should be read as "the platform's governing body" — i.e. the Aquastat operator. Terminology like "federation_admin" is kept only as an internal technical identifier; the user-facing label is "Platform Admin".
+
 ---
 
 ## A. Strategic Decisions (locked)
@@ -28,7 +30,7 @@ This file overrides/extends v1.0. Where v1.0 conflicts with this patch, v1.1 win
 id              UUID PK
 name            text
 short_name      text          -- e.g. "ΝΟΛ", "ΟΚΟΑΛ"
-federation_code text nullable -- ΚΟΕΚ registration code if available
+federation_code text nullable -- registration code with governing body, if available
 country         text default 'CY'
 is_active       boolean
 created_at      timestamp
@@ -41,7 +43,9 @@ Add columns:
 - `role enum` extended: **`federation_admin, club_admin, coach, parent`** (replaces single `admin`).
 - `preferred_locale enum: el, en` default `el`.
 
-Rule: `federation_admin` is the global Aquastat operator (Παγκύπριο επίπεδο). `club_admin` replaces v1.0's per-club `admin`. The "Admin" role from v1.0 §4.1 splits accordingly — see §F below.
+Rule: `federation_admin` is the **internal identifier** for the platform-wide operator role (display label: "Platform Admin" / "Διαχειριστής Πλατφόρμας"). `club_admin` replaces v1.0's per-club `admin`. The "Admin" role from v1.0 §4.1 splits accordingly — see §F below.
+
+> The legacy enum name `federation_admin` is kept for backward compatibility. Aquastat is an independent product and does **not** represent any swimming federation. The role identifies the platform operator who can see across all participating clubs — nothing more.
 
 ### B.3 `athletes` — multi-club + computed category
 
@@ -51,7 +55,7 @@ Rule: `federation_admin` is the global Aquastat operator (Παγκύπριο ε�
 
 ### B.4 `seasons` — federation-wide
 
-Seasons remain federation-level (one ΚΟΕΚ season covers all clubs). No `club_id`.
+Seasons remain platform-level (one season covers all clubs). No `club_id`.
 
 ### B.5 `competitions` — federation-wide
 
@@ -59,7 +63,7 @@ No `club_id`. All clubs see the same competition calendar (per season). Internal
 
 ### B.6 `qualification_standards` — federation-wide
 
-No `club_id`. Standards come from the ΚΟΕΚ προκήρυξη and apply to all clubs.
+No `club_id`. Standards come from the season proclamation and apply to all clubs on the platform.
 
 ### B.7 `competition_results` — pool_type authority
 
@@ -103,7 +107,7 @@ Skip a DB-driven translation table. All static strings live in JSON locale files
 
 ### C.1 Legal context
 
-Athletes are predominantly minors. Aquastat processes special-category-adjacent personal data (health-adjacent performance data, biometric-related ages). GDPR + Cyprus Law 125(I)/2018 apply. The federation (ΚΟΕΚ) and each club are joint controllers; Aquastat is processor.
+Athletes are predominantly minors. Aquastat processes special-category-adjacent personal data (health-adjacent performance data, biometric-related ages). GDPR + Cyprus Law 125(I)/2018 apply. Each participating club is a joint controller with the platform operator; Aquastat itself is a processor. Aquastat is an independent product and is not affiliated with, endorsed by, or operating under the auspices of any swimming federation.
 
 ### C.2 Consent model
 
@@ -128,7 +132,7 @@ Endpoints:
 
 ### C.4 Retention
 
-- Active athlete data: kept while athlete is active + 2 competitive seasons after deactivation (for record/historical reference required by ΚΟΕΚ).
+- Active athlete data: kept while athlete is active + 2 competitive seasons after deactivation (for historical reference).
 - Audit logs: 12 months.
 - AI extraction raw JSON: 90 days after final approval/rejection.
 - Uploaded documents: federation proclamations indefinitely; results PDFs 5 years; club internal uploads per club admin choice (default 2 seasons).
@@ -191,7 +195,7 @@ Phase 1: transactional email via Resend or Postmark. Configurable SMTP fallback.
 | Age categories | DB columns `name_el`, `name_en` |
 | Standard types | i18n keys |
 | Athlete names | stored as entered; never translated |
-| Competition names | stored as entered (typically Greek from ΚΟΕΚ); no translation |
+| Competition names | stored as entered (typically Greek); no translation |
 | Club names | DB columns `name_el`, `name_en` (optional; falls back to `name` for clubs without English variants) |
 | Coach notes | stored as entered |
 | AI extracted JSON | preserved as-is from source document |
@@ -209,7 +213,7 @@ Phase 1: transactional email via Resend or Postmark. Configurable SMTP fallback.
 
 | Role | Scope |
 |---|---|
-| `federation_admin` | Παγκύπριο. All clubs visible. Manages seasons, standards, federation documents, federation-wide AI review. |
+| `federation_admin` (display: Platform Admin) | Platform-wide. All clubs visible. Manages seasons, standards, platform-scoped documents, platform-wide AI review. |
 | `club_admin` | Single club. Manages users/athletes/coaches/parents within their club. Uploads club-scoped documents. Reviews AI extractions for results PDFs of their club. |
 | `coach` | Single club, subset of athletes. As v1.0 §4.2. |
 | `parent` | Single or multiple athletes across clubs (rare). As v1.0 §4.3. |

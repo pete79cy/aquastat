@@ -38,7 +38,7 @@ export default function CompetitionPreparation() {
           <div className="flex items-center gap-2">
             <Chip className="bg-white/20 text-white border border-white/30">{t("preparation.phaseTaper")}</Chip>
           </div>
-          <h2 className="text-xl font-bold leading-tight">Παγκύπριο Πρωτάθλημα Ανοιχτής Κατηγορίας</h2>
+          <h2 className="text-xl font-bold leading-tight">Πρωτάθλημα Ανοιχτής Κατηγορίας</h2>
           <div className="text-sm flex items-center gap-3 text-primary-container-fg">
             <span className="flex items-center gap-1"><CalendarIcon className="w-3.5 h-3.5" /> 24–26 Οκτ 2026</span>
             <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> Λεμεσός</span>

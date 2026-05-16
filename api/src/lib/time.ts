@@ -14,7 +14,7 @@ export function formatTime(ms: number | null | undefined): string {
 
 /**
  * Compute age category for an athlete given DOB and season start year.
- * Per ΚΟΕΚ rule: age = competition year minus birth year, calculated at Dec 31.
+ * Per standard rule: age = competition year minus birth year, calculated at Dec 31.
  *
  * Returns the birth year so callers can map to a category in DB.
  */

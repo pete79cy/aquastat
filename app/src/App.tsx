@@ -38,7 +38,7 @@ function RoleAwareLayout({ role }: { role: "federation_admin" | "club_admin" | "
     <AppLayout
       role={role}
       userName={user.name}
-      clubName={role === "federation_admin" ? "ΚΟΕΚ" : (user.clubId ?? "—").slice(0, 8)}
+      clubName={role === "federation_admin" ? "—" : (user.clubId ?? "—").slice(0, 8)}
     />
   );
 }

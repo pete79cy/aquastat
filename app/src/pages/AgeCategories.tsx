@@ -28,7 +28,7 @@ export default function AgeCategoriesPage() {
           <div className="text-xs uppercase tracking-wider text-primary-container-fg">Σαιζόν 2025–2026</div>
           <h2 className="text-xl font-bold">Πλαίσιο Κατηγοριών</h2>
           <p className="text-sm text-primary-container-fg max-w-prose">
-            Επίσημες κατηγορίες ΚΟΕΚ. Όλες οι εγγραφές αθλητών πρέπει να αντιστοιχούν στις παρακάτω ταξινομήσεις γενιάς.
+            Ταξινόμηση αθλητών ανά έτος γέννησης. Οι κατηγορίες ορίζονται από την προκήρυξη της εκάστοτε σαιζόν.
           </p>
         </CardBody>
       </Card>

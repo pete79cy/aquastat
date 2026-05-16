@@ -5,8 +5,8 @@ import { Chip } from "@/components/ui/Chip";
 import { UploadCloud, FileText, Calendar, ListChecks, Tag } from "lucide-react";
 
 const recent = [
-  { name: "Προκήρυξη_ΚΟΕΚ_2025-2026_v2.pdf", size: "4.2 MB", time: "πριν 2 ώρες", status: "processing" as const },
-  { name: "Πρόγραμμα_Παγκυπρίου.pdf", size: "1.8 MB", time: "πριν 4 ώρες", status: "ready_for_review" as const },
+  { name: "Προκήρυξη_Σαιζόν_2025-2026_v2.pdf", size: "4.2 MB", time: "πριν 2 ώρες", status: "processing" as const },
+  { name: "Πρόγραμμα_Διοργάνωσης.pdf", size: "1.8 MB", time: "πριν 4 ώρες", status: "ready_for_review" as const },
   { name: "Προκήρυξη_2024-2025.pdf", size: "3.9 MB", time: "πριν 5 ημέρες", status: "archived" as const },
 ];
 

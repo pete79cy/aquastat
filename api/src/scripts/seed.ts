@@ -65,7 +65,7 @@ async function main() {
   }).returning();
   console.log(`[seed] season: ${season.name}`);
 
-  // 4. Age categories (ΚΟΕΚ)
+  // 4. Age categories (typical Cyprus swimming age groups for season 2025-2026)
   await db.insert(ageCategories).values([
     { seasonId: season.id, nameEl: "Άνδρες / Γυναίκες", nameEn: "Men / Women", genderScope: "any", birthYearFrom: null, birthYearTo: 2007 },
     { seasonId: season.id, nameEl: "Νέοι / Νεανίδες", nameEn: "Juniors", genderScope: "any", birthYearFrom: 2008, birthYearTo: 2009 },

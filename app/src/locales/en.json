@@ -1,7 +1,8 @@
 {
   "app": {
     "name": "Aquastat",
-    "tagline": "Track, analyze and target swimming performance"
+    "tagline": "Track, analyze and target swimming performance",
+    "disclaimer": "Independent tool for swimming clubs — not affiliated with any swimming federation"
   },
   "auth": {
     "login": "Login",
@@ -30,7 +31,7 @@
     "users": "Users"
   },
   "roles": {
-    "federation_admin": "Federation Admin",
+    "federation_admin": "Platform Admin",
     "club_admin": "Club Admin",
     "coach": "Coach",
     "parent": "Parent"
@@ -152,7 +153,7 @@
   },
   "competitions": {
     "title": "Competition Calendar",
-    "subtitle": "ΚΟΕΚ meets · Season {{season}}",
+    "subtitle": "Season {{season}}",
     "newCompetition": "New competition",
     "filter": "Filters",
     "status": {
@@ -200,7 +201,7 @@
   },
   "seasonSetup": {
     "title": "Season Setup",
-    "subtitle": "Official ΚΟΕΚ data for the competitive season",
+    "subtitle": "Season data extracted from proclamation documents",
     "uploadProclamation": "Upload proclamation",
     "dropZone": "Drop PDF here or click",
     "maxFileSize": "Max size: 25MB",
@@ -262,11 +263,11 @@
   },
   "standards": {
     "title": "Standards & Records",
-    "subtitle": "ΚΟΕΚ qualification standards, international criteria, Cyprus records",
+    "subtitle": "Qualification standards, international criteria, local records",
     "tabs": {
       "qualification": "Qualification",
       "international": "International",
-      "records": "Cyprus records"
+      "records": "Records"
     },
     "filterCategory": "Category",
     "filterGender": "Gender",
@@ -280,7 +281,7 @@
   },
   "ageCategories": {
     "title": "Age Categories",
-    "subtitle": "Official ΚΟΕΚ classification by birth year",
+    "subtitle": "Classification of athletes by birth year",
     "category": "Category",
     "birthYears": "Birth years",
     "gender": "Gender",
@@ -313,7 +314,7 @@
   },
   "clubsList": {
     "title": "Clubs",
-    "subtitle": "Manage ΚΟΕΚ-affiliated clubs — Federation level",
+    "subtitle": "Manage swimming clubs",
     "newClub": "New club",
     "columns": {
       "club": "Club",
@@ -326,8 +327,8 @@
     "edit": "Edit"
   },
   "federationDashboard": {
-    "title": "Federation Overview",
-    "subtitle": "Cyprus-wide · Season {{season}}",
+    "title": "Platform Overview",
+    "subtitle": "All clubs · Season {{season}}",
     "totalClubs": "Clubs",
     "totalAthletes": "Athletes",
     "totalCoaches": "Coaches",

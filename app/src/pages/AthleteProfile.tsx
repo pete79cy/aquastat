@@ -67,7 +67,7 @@ export default function AthleteProfile() {
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
               <Button className="flex-1 sm:flex-initial">
-                <Plus className="w-4 h-4" /> {t("athleteProfile.recordResult")}
+                <Plus className="w-4 h-4" aria-hidden="true" /> {t("athleteProfile.recordResult")}
               </Button>
               <Button variant="outline" className="flex-1 sm:flex-initial">
                 <Edit3 className="w-4 h-4" /> {t("athleteProfile.editProfile")}
