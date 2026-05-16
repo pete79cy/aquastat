@@ -25,7 +25,9 @@
     "profile": "Προφίλ",
     "settings": "Ρυθμίσεις",
     "myChild": "Το παιδί μου",
-    "progress": "Πρόοδος"
+    "progress": "Πρόοδος",
+    "clubs": "Όμιλοι",
+    "users": "Χρήστες"
   },
   "roles": {
     "federation_admin": "Διαχειριστής Ομοσπονδίας",
@@ -100,6 +102,253 @@
     "butterfly": "Πεταλούδα",
     "medley": "Μικτή Ατομική"
   },
+  "addResult": {
+    "competitionTitle": "Νέα αγωνιστική επίδοση",
+    "competitionSubtitle": "Καταχώριση χρόνου από επίσημο αγώνα",
+    "trainingTitle": "Νέα προπονητική επίδοση",
+    "trainingSubtitle": "Καταγραφή χρόνου από προπόνηση, test ή race simulation",
+    "athlete": "Αθλητής",
+    "competition": "Αγώνας",
+    "event": "Αγώνισμα",
+    "date": "Ημερομηνία",
+    "poolType": "Τύπος πισίνας",
+    "roundType": "Φάση αγώνα",
+    "rounds": {
+      "heat": "Σειρά",
+      "final": "Τελικός",
+      "direct_final": "Απευθείας τελικός"
+    },
+    "rank": "Κατάταξη",
+    "time": "Χρόνος",
+    "minutes": "Λεπτά",
+    "seconds": "Δευτ.",
+    "hundredths": "Εκατοστά",
+    "notes": "Σημειώσεις",
+    "notesPlaceholder": "Π.χ. τεχνικές παρατηρήσεις, συνθήκες αγώνα...",
+    "trainingType": "Τύπος προπόνησης",
+    "trainingContext": "Συνθήκες",
+    "save": "Αποθήκευση",
+    "saveAndAddAnother": "Αποθήκευση & νέα",
+    "cancel": "Άκυρο",
+    "msPreview": "Θα αποθηκευθεί ως",
+    "rankPlaceholder": "π.χ. 3"
+  },
+  "training": {
+    "types": {
+      "test": "Test",
+      "time_trial": "Time Trial",
+      "race_simulation": "Race Simulation",
+      "set_result": "Set Result",
+      "coach_observation": "Παρατήρηση Προπονητή"
+    },
+    "contexts": {
+      "normal": "Κανονική προπόνηση",
+      "heavy_fatigue": "Βαριά κούραση",
+      "taper": "Taper",
+      "after_gym": "Μετά γυμναστήριο",
+      "before_competition": "Πριν τον αγώνα",
+      "technical_test": "Τεχνικό test"
+    }
+  },
+  "competitions": {
+    "title": "Αγωνιστικό ημερολόγιο",
+    "subtitle": "Αγώνες ΚΟΕΚ σαιζόν {{season}}",
+    "newCompetition": "Νέος αγώνας",
+    "filter": "Φίλτρα",
+    "status": {
+      "registration_open": "Δηλώσεις ανοιχτές",
+      "scheduled": "Προγραμματισμένος",
+      "past": "Ολοκληρώθηκε"
+    },
+    "registeredAthletes": "Δηλωμένοι",
+    "events": "αγωνίσματα",
+    "viewDetails": "Λεπτομέρειες",
+    "viewResults": "Αποτελέσματα",
+    "deadline": "Λήξη δηλώσεων",
+    "pool": "Πισίνα",
+    "eligible": "Δικαίωμα συμμετοχής",
+    "noResults": "Δεν βρέθηκαν αγώνες με αυτά τα κριτήρια."
+  },
+  "competitionDetail": {
+    "program": "Πρόγραμμα αγωνισμάτων",
+    "eligibleAthletes": "Δικαιούχοι αθλητές",
+    "requirements": "Απαιτήσεις πρόκρισης",
+    "documents": "Σχετικά έγγραφα",
+    "session": "Session",
+    "day": "Ημέρα",
+    "events": "Αγωνίσματα"
+  },
+  "preparation": {
+    "title": "Προετοιμασία Αγώνα",
+    "subtitle": "Διαχείριση δηλώσεων αθλητών",
+    "phase": "Φάση προετοιμασίας",
+    "phaseTaper": "Taper",
+    "generateEntries": "Δημιουργία αρχείου δηλώσεων",
+    "qualified": "Δικαιούνται",
+    "close": "Κοντά",
+    "pending": "Εκκρεμούν",
+    "deadlineIn": "Λήξη σε",
+    "athletesManagement": "Διαχείριση συμμετοχών",
+    "searchAthletes": "Αναζήτηση αθλητή...",
+    "pb": "PB",
+    "limit": "Όριο",
+    "status": {
+      "qualified": "Επιτεύχθηκε",
+      "close": "Κοντά",
+      "not_qualified": "Δεν επιτεύχθηκε"
+    }
+  },
+  "seasonSetup": {
+    "title": "Ρύθμιση Σαιζόν",
+    "subtitle": "Επίσημα δεδομένα ΚΟΕΚ για την αγωνιστική περίοδο",
+    "uploadProclamation": "Ανέβασμα προκήρυξης",
+    "dropZone": "Σύρετε PDF εδώ ή κάντε κλικ",
+    "maxFileSize": "Μέγιστο μέγεθος: 25MB",
+    "uploadButton": "Επιλογή αρχείου",
+    "uploadHint": "Από την προκήρυξη θα εξαχθούν: αγώνες, κατηγορίες, όρια, διεθνή κριτήρια.",
+    "recentUploads": "Πρόσφατα αρχεία",
+    "viewAll": "Όλα",
+    "seasonStart": "Έναρξη σαιζόν",
+    "parsedRules": "Επεξεργασμένοι κανόνες",
+    "systemVersion": "Έκδοση συστήματος",
+    "uploadStatuses": {
+      "processing": "Επεξεργασία",
+      "ready_for_review": "Έτοιμο για review",
+      "archived": "Αρχειοθετημένο"
+    }
+  },
+  "aiReview": {
+    "title": "AI Review",
+    "subtitle": "Όλα τα AI extracted δεδομένα απαιτούν ανθρώπινη έγκριση",
+    "queue": "Ουρά εκκρεμοτήτων",
+    "documents": "Έγγραφα",
+    "documentType": {
+      "season_proclamation": "Προκήρυξη σαιζόν",
+      "results_pdf": "Αποτελέσματα αγώνα",
+      "standards_pdf": "Όρια πρόκρισης"
+    },
+    "items": "items",
+    "pending": "Εκκρεμούν",
+    "approved": "Εγκριθήκαν",
+    "rejected": "Απορρίφθηκαν",
+    "review": "Review",
+    "confidence": "Confidence",
+    "actions": {
+      "approve": "Έγκριση",
+      "reject": "Απόρριψη",
+      "edit": "Επεξεργασία",
+      "bulkApprove": "Bulk έγκριση High",
+      "reprocess": "Επανεπεξεργασία"
+    },
+    "extractionReview": "Επισκόπηση εξαγωγής",
+    "tabs": {
+      "competitions": "Αγώνες",
+      "events": "Αγωνίσματα",
+      "categories": "Κατηγορίες",
+      "standards": "Όρια",
+      "international": "Διεθνή",
+      "results": "Αποτελέσματα",
+      "rules": "Κανόνες"
+    },
+    "session": "Session",
+    "startTime": "Ώρα έναρξης",
+    "pool": "Πισίνα",
+    "qualifyingTime": "Όριο πρόκρισης",
+    "highConfidence": "High",
+    "medConfidence": "Medium",
+    "lowConfidence": "Low",
+    "sourcePage": "Πηγή",
+    "humanReviewBanner": "Όλα τα δεδομένα παραμένουν pending μέχρι ανθρώπινη έγκριση. Δεν επιτρέπεται direct save ως verified."
+  },
+  "standards": {
+    "title": "Όρια & Ρεκόρ",
+    "subtitle": "Όρια πρόκρισης ΚΟΕΚ, διεθνή κριτήρια και παγκύπρια ρεκόρ",
+    "tabs": {
+      "qualification": "Όρια πρόκρισης",
+      "international": "Διεθνή κριτήρια",
+      "records": "Παγκύπρια ρεκόρ"
+    },
+    "filterCategory": "Κατηγορία",
+    "filterGender": "Φύλο",
+    "filterEvent": "Αγώνισμα",
+    "domestic": "Παγκύπριο",
+    "international": "Διεθνές",
+    "event": "Αγώνισμα",
+    "category": "Κατηγορία",
+    "pool": "Πισίνα",
+    "downloadPdf": "Λήψη PDF"
+  },
+  "ageCategories": {
+    "title": "Κατηγορίες ηλικιών",
+    "subtitle": "Επίσημη ταξινόμηση ΚΟΕΚ ανά γενιά",
+    "category": "Κατηγορία",
+    "birthYears": "Έτη γέννησης",
+    "gender": "Φύλο",
+    "matrix": "Πίνακας κατηγοριών",
+    "compliance": "Συμμόρφωση κανόνων",
+    "complianceItems": [
+      "Ηλικίες υπολογίζονται με βάση 31 Δεκεμβρίου του έτους αγώνα.",
+      "Πολλαπλή συμμετοχή σε κατηγορίες επιτρέπεται μόνο για σκυταλοδρομίες.",
+      "Πιστοποιητικό γέννησης υποχρεωτικό για εγγραφή."
+    ]
+  },
+  "athletesList": {
+    "title": "Αθλητές",
+    "newAthlete": "Νέος αθλητής",
+    "searchPlaceholder": "Αναζήτηση με όνομα, επώνυμο, αριθμό μητρώου...",
+    "filterCategory": "Όλες οι κατηγορίες",
+    "filterClub": "Όλοι οι όμιλοι",
+    "columns": {
+      "athlete": "Αθλητής",
+      "dob": "Ημ. γέννησης",
+      "category": "Κατηγορία",
+      "club": "Όμιλος",
+      "coach": "Προπονητής",
+      "status": "Κατάσταση",
+      "lastResult": "Τελευταία επίδοση"
+    },
+    "active": "Ενεργός",
+    "inactive": "Ανενεργός",
+    "results": "{{count}} αθλητές"
+  },
+  "clubsList": {
+    "title": "Όμιλοι",
+    "subtitle": "Διαχείριση clubs ΚΟΕΚ — Federation level",
+    "newClub": "Νέος όμιλος",
+    "columns": {
+      "club": "Όμιλος",
+      "region": "Περιοχή",
+      "athletes": "Αθλητές",
+      "coaches": "Προπονητές",
+      "actions": "Ενέργειες"
+    },
+    "view": "Προβολή",
+    "edit": "Επεξεργασία"
+  },
+  "federationDashboard": {
+    "title": "Επισκόπηση Ομοσπονδίας",
+    "subtitle": "Παγκύπρια εικόνα · σαιζόν {{season}}",
+    "totalClubs": "Όμιλοι",
+    "totalAthletes": "Αθλητές",
+    "totalCoaches": "Προπονητές",
+    "activeSeasons": "Ενεργές σαιζόν",
+    "upcomingCompetitions": "Επόμενοι αγώνες",
+    "pendingAIReviews": "Εκκρεμή AI reviews",
+    "clubsBreakdown": "Ανάλυση ομίλων",
+    "viewAll": "Όλοι",
+    "manageClubs": "Διαχείριση ομίλων →"
+  },
+  "clubAdminDashboard": {
+    "title": "Πίνακας Ομίλου",
+    "subtitle": "{{club}} · Σαιζόν {{season}}",
+    "athletesCount": "Αθλητές",
+    "coachesCount": "Προπονητές",
+    "parentsCount": "Γονείς",
+    "upcomingCompetitions": "Επόμενοι αγώνες",
+    "pendingAIReviews": "Εκκρεμή AI",
+    "manageAthletes": "Διαχείριση αθλητών →",
+    "manageUsers": "Διαχείριση χρηστών →"
+  },
   "common": {
     "search": "Αναζήτηση",
     "filter": "Φίλτρα",
@@ -107,6 +356,12 @@
     "cancel": "Άκυρο",
     "loading": "Φόρτωση...",
     "language": "Γλώσσα",
-    "logout": "Αποσύνδεση"
+    "logout": "Αποσύνδεση",
+    "back": "Πίσω",
+    "all": "Όλα",
+    "select": "Επιλογή...",
+    "yes": "Ναι",
+    "no": "Όχι",
+    "actionRequired": "Απαιτείται ενέργεια"
   }
 }

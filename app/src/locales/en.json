@@ -25,7 +25,9 @@
     "profile": "Profile",
     "settings": "Settings",
     "myChild": "My child",
-    "progress": "Progress"
+    "progress": "Progress",
+    "clubs": "Clubs",
+    "users": "Users"
   },
   "roles": {
     "federation_admin": "Federation Admin",
@@ -100,6 +102,253 @@
     "butterfly": "Butterfly",
     "medley": "Individual Medley"
   },
+  "addResult": {
+    "competitionTitle": "Add competition result",
+    "competitionSubtitle": "Record an official meet time",
+    "trainingTitle": "Add training result",
+    "trainingSubtitle": "Record a time from practice, test, or race simulation",
+    "athlete": "Athlete",
+    "competition": "Competition",
+    "event": "Event",
+    "date": "Date",
+    "poolType": "Pool type",
+    "roundType": "Round",
+    "rounds": {
+      "heat": "Heat",
+      "final": "Final",
+      "direct_final": "Direct final"
+    },
+    "rank": "Rank",
+    "time": "Time",
+    "minutes": "Min",
+    "seconds": "Sec",
+    "hundredths": "Hundredths",
+    "notes": "Notes",
+    "notesPlaceholder": "e.g. technical notes, race conditions...",
+    "trainingType": "Training type",
+    "trainingContext": "Context",
+    "save": "Save",
+    "saveAndAddAnother": "Save & add another",
+    "cancel": "Cancel",
+    "msPreview": "Stored as",
+    "rankPlaceholder": "e.g. 3"
+  },
+  "training": {
+    "types": {
+      "test": "Test",
+      "time_trial": "Time Trial",
+      "race_simulation": "Race Simulation",
+      "set_result": "Set Result",
+      "coach_observation": "Coach Observation"
+    },
+    "contexts": {
+      "normal": "Normal training",
+      "heavy_fatigue": "Heavy fatigue",
+      "taper": "Taper",
+      "after_gym": "After gym",
+      "before_competition": "Before competition",
+      "technical_test": "Technical test"
+    }
+  },
+  "competitions": {
+    "title": "Competition Calendar",
+    "subtitle": "ΚΟΕΚ meets · Season {{season}}",
+    "newCompetition": "New competition",
+    "filter": "Filters",
+    "status": {
+      "registration_open": "Registration open",
+      "scheduled": "Scheduled",
+      "past": "Past"
+    },
+    "registeredAthletes": "Registered",
+    "events": "events",
+    "viewDetails": "Details",
+    "viewResults": "Results",
+    "deadline": "Declaration deadline",
+    "pool": "Pool",
+    "eligible": "Eligibility",
+    "noResults": "No competitions match these filters."
+  },
+  "competitionDetail": {
+    "program": "Event program",
+    "eligibleAthletes": "Eligible athletes",
+    "requirements": "Qualification requirements",
+    "documents": "Related documents",
+    "session": "Session",
+    "day": "Day",
+    "events": "Events"
+  },
+  "preparation": {
+    "title": "Competition Preparation",
+    "subtitle": "Manage athlete entries",
+    "phase": "Preparation phase",
+    "phaseTaper": "Taper",
+    "generateEntries": "Generate entry file",
+    "qualified": "Qualified",
+    "close": "Close",
+    "pending": "Pending",
+    "deadlineIn": "Deadline in",
+    "athletesManagement": "Athlete entry management",
+    "searchAthletes": "Search athlete...",
+    "pb": "PB",
+    "limit": "Limit",
+    "status": {
+      "qualified": "Qualified",
+      "close": "Close",
+      "not_qualified": "Not qualified"
+    }
+  },
+  "seasonSetup": {
+    "title": "Season Setup",
+    "subtitle": "Official ΚΟΕΚ data for the competitive season",
+    "uploadProclamation": "Upload proclamation",
+    "dropZone": "Drop PDF here or click",
+    "maxFileSize": "Max size: 25MB",
+    "uploadButton": "Select file",
+    "uploadHint": "The proclamation will be parsed for: competitions, categories, standards, international criteria.",
+    "recentUploads": "Recent uploads",
+    "viewAll": "View all",
+    "seasonStart": "Season start",
+    "parsedRules": "Parsed rules",
+    "systemVersion": "System version",
+    "uploadStatuses": {
+      "processing": "Processing",
+      "ready_for_review": "Ready for review",
+      "archived": "Archived"
+    }
+  },
+  "aiReview": {
+    "title": "AI Review",
+    "subtitle": "All AI extracted data requires human approval",
+    "queue": "Pending queue",
+    "documents": "Documents",
+    "documentType": {
+      "season_proclamation": "Season proclamation",
+      "results_pdf": "Meet results",
+      "standards_pdf": "Qualification standards"
+    },
+    "items": "items",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "review": "Review",
+    "confidence": "Confidence",
+    "actions": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "edit": "Edit",
+      "bulkApprove": "Bulk approve High",
+      "reprocess": "Reprocess"
+    },
+    "extractionReview": "Extraction Review",
+    "tabs": {
+      "competitions": "Competitions",
+      "events": "Events",
+      "categories": "Categories",
+      "standards": "Standards",
+      "international": "International",
+      "results": "Results",
+      "rules": "Rules"
+    },
+    "session": "Session",
+    "startTime": "Start time",
+    "pool": "Pool",
+    "qualifyingTime": "Qualifying time",
+    "highConfidence": "High",
+    "medConfidence": "Medium",
+    "lowConfidence": "Low",
+    "sourcePage": "Source",
+    "humanReviewBanner": "All items remain pending until human approval. Direct save as verified is not permitted."
+  },
+  "standards": {
+    "title": "Standards & Records",
+    "subtitle": "ΚΟΕΚ qualification standards, international criteria, Cyprus records",
+    "tabs": {
+      "qualification": "Qualification",
+      "international": "International",
+      "records": "Cyprus records"
+    },
+    "filterCategory": "Category",
+    "filterGender": "Gender",
+    "filterEvent": "Event",
+    "domestic": "Domestic",
+    "international": "International",
+    "event": "Event",
+    "category": "Category",
+    "pool": "Pool",
+    "downloadPdf": "Download PDF"
+  },
+  "ageCategories": {
+    "title": "Age Categories",
+    "subtitle": "Official ΚΟΕΚ classification by birth year",
+    "category": "Category",
+    "birthYears": "Birth years",
+    "gender": "Gender",
+    "matrix": "Category matrix",
+    "compliance": "Compliance rules",
+    "complianceItems": [
+      "Ages calculated as of December 31st of competition year.",
+      "Multi-category participation permitted for relays only.",
+      "Birth certificate required for registration."
+    ]
+  },
+  "athletesList": {
+    "title": "Athletes",
+    "newAthlete": "New athlete",
+    "searchPlaceholder": "Search by name, registration number...",
+    "filterCategory": "All categories",
+    "filterClub": "All clubs",
+    "columns": {
+      "athlete": "Athlete",
+      "dob": "DOB",
+      "category": "Category",
+      "club": "Club",
+      "coach": "Coach",
+      "status": "Status",
+      "lastResult": "Last result"
+    },
+    "active": "Active",
+    "inactive": "Inactive",
+    "results": "{{count}} athletes"
+  },
+  "clubsList": {
+    "title": "Clubs",
+    "subtitle": "Manage ΚΟΕΚ-affiliated clubs — Federation level",
+    "newClub": "New club",
+    "columns": {
+      "club": "Club",
+      "region": "Region",
+      "athletes": "Athletes",
+      "coaches": "Coaches",
+      "actions": "Actions"
+    },
+    "view": "View",
+    "edit": "Edit"
+  },
+  "federationDashboard": {
+    "title": "Federation Overview",
+    "subtitle": "Cyprus-wide · Season {{season}}",
+    "totalClubs": "Clubs",
+    "totalAthletes": "Athletes",
+    "totalCoaches": "Coaches",
+    "activeSeasons": "Active seasons",
+    "upcomingCompetitions": "Upcoming meets",
+    "pendingAIReviews": "Pending AI reviews",
+    "clubsBreakdown": "Clubs breakdown",
+    "viewAll": "All",
+    "manageClubs": "Manage clubs →"
+  },
+  "clubAdminDashboard": {
+    "title": "Club Dashboard",
+    "subtitle": "{{club}} · Season {{season}}",
+    "athletesCount": "Athletes",
+    "coachesCount": "Coaches",
+    "parentsCount": "Parents",
+    "upcomingCompetitions": "Upcoming meets",
+    "pendingAIReviews": "Pending AI",
+    "manageAthletes": "Manage athletes →",
+    "manageUsers": "Manage users →"
+  },
   "common": {
     "search": "Search",
     "filter": "Filter",
@@ -107,6 +356,12 @@
     "cancel": "Cancel",
     "loading": "Loading...",
     "language": "Language",
-    "logout": "Logout"
+    "logout": "Logout",
+    "back": "Back",
+    "all": "All",
+    "select": "Select...",
+    "yes": "Yes",
+    "no": "No",
+    "actionRequired": "Action required"
   }
 }
