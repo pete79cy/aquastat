@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Building2, Users, Calendar, Layers } from "lucide-react";
+import { Building2, Users, Calendar, Layers, GraduationCap, AlertCircle } from "lucide-react";
 import { Card, CardBody, CardTitle } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { api } from "@/lib/api";
@@ -9,16 +9,11 @@ import { api } from "@/lib/api";
 export default function FederationDashboard() {
   const { t } = useTranslation();
 
-  const clubsQ = useQuery({
-    queryKey: ["clubs"],
-    queryFn: () => api.clubs.list().then((r) => r.clubs),
-  });
+  const statsQ = useQuery({ queryKey: ["stats", "federation"], queryFn: () => api.stats.federation().then((r) => r.stats) });
+  const clubsQ = useQuery({ queryKey: ["clubs"], queryFn: () => api.clubs.list().then((r) => r.clubs) });
+  const competitionsQ = useQuery({ queryKey: ["competitions"], queryFn: () => api.competitions.list().then((r) => r.competitions) });
 
-  const competitionsQ = useQuery({
-    queryKey: ["competitions"],
-    queryFn: () => api.competitions.list().then((r) => r.competitions),
-  });
-
+  const stats = statsQ.data;
   const clubs = clubsQ.data ?? [];
   const competitions = competitionsQ.data ?? [];
   const upcoming = competitions.filter((c) => new Date(c.endDate) >= new Date());
@@ -34,11 +29,18 @@ export default function FederationDashboard() {
         </p>
       </header>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-        <Kpi icon={<Building2 className="w-4 h-4 text-primary" />} label={t("federationDashboard.totalClubs")} value={clubs.length} loading={clubsQ.isLoading} />
-        <Kpi icon={<Users className="w-4 h-4 text-primary" />} label={t("federationDashboard.totalAthletes")} value="—" />
-        <Kpi icon={<Layers className="w-4 h-4 text-primary" />} label={t("federationDashboard.activeSeasons")} value={1} />
-        <Kpi icon={<Calendar className="w-4 h-4 text-primary" />} label={t("federationDashboard.upcomingCompetitions")} value={upcoming.length} loading={competitionsQ.isLoading} />
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4">
+        <Kpi icon={<Building2 className="w-4 h-4 text-primary" />} label={t("federationDashboard.totalClubs")} value={stats?.totalClubs ?? "—"} loading={statsQ.isLoading} />
+        <Kpi icon={<Users className="w-4 h-4 text-primary" />} label={t("federationDashboard.totalAthletes")} value={stats?.totalAthletes ?? "—"} loading={statsQ.isLoading} />
+        <Kpi icon={<GraduationCap className="w-4 h-4 text-primary" />} label={t("federationDashboard.totalCoaches")} value={stats?.totalCoaches ?? "—"} loading={statsQ.isLoading} />
+        <Kpi icon={<Calendar className="w-4 h-4 text-primary" />} label={t("federationDashboard.upcomingCompetitions")} value={stats?.upcomingCompetitions ?? upcoming.length} loading={statsQ.isLoading || competitionsQ.isLoading} />
+        <Kpi
+          icon={<AlertCircle className={"w-4 h-4 " + ((stats?.pendingAIReviews ?? 0) > 0 ? "text-warn" : "text-primary")} />}
+          label={t("federationDashboard.pendingAIReviews")}
+          value={stats?.pendingAIReviews ?? 0}
+          tone={(stats?.pendingAIReviews ?? 0) > 0 ? "warn" : undefined}
+          loading={statsQ.isLoading}
+        />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
@@ -52,6 +54,8 @@ export default function FederationDashboard() {
           <div className="px-2 pb-2">
             {clubsQ.isLoading ? (
               <div className="px-4 py-8 text-center text-ink-muted text-sm">{t("common.loading")}</div>
+            ) : clubs.length === 0 ? (
+              <div className="px-4 py-8 text-center text-ink-muted text-sm">Δεν υπάρχουν όμιλοι.</div>
             ) : (
               <table className="w-full text-sm">
                 <thead>
@@ -121,12 +125,14 @@ export default function FederationDashboard() {
   );
 }
 
-function Kpi({ icon, label, value, loading }: { icon: React.ReactNode; label: string; value: string | number; loading?: boolean }) {
+void Layers;
+
+function Kpi({ icon, label, value, loading, tone }: { icon: React.ReactNode; label: string; value: string | number; loading?: boolean; tone?: "warn" }) {
   return (
     <Card>
       <CardBody className="p-4">
         <div className="flex items-center gap-1.5">{icon}<CardTitle className="!text-[11px]">{label}</CardTitle></div>
-        <div className="mt-2 text-2xl lg:text-3xl font-bold tracking-tight tnum text-primary">
+        <div className={"mt-2 text-2xl lg:text-3xl font-bold tracking-tight tnum " + (tone === "warn" ? "text-warn" : "text-primary")}>
           {loading ? "…" : value}
         </div>
       </CardBody>

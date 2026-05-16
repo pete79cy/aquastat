@@ -8,6 +8,7 @@ import "dotenv/config";
 import { db, sql } from "../db/client.js";
 import {
   clubs, users, athletes, seasons, ageCategories, swimEvents,
+  competitions, qualificationStandards,
 } from "../db/schema.js";
 import { hashPassword } from "../lib/auth.js";
 import { eq } from "drizzle-orm";
@@ -38,22 +39,20 @@ async function main() {
     .returning();
   console.log(`[seed] clubs: ${nol.shortName}, ${okoal.shortName}, ${nolar.shortName}, ${nop.shortName}`);
 
-  // 2. Users
+  // 2. Users (parent role intentionally not seeded — see PDR positioning)
   const adminHash = await hashPassword(SEED_ADMIN_PASSWORD);
   const coachHash = await hashPassword("CoachDemo!1");
-  const parentHash = await hashPassword("ParentDemo!1");
   const clubAdminHash = await hashPassword("ClubAdminDemo!1");
 
-  const [fedAdmin, clubAdmin, coach, parent] = await db
+  const [fedAdmin, clubAdmin, coach] = await db
     .insert(users)
     .values([
       { name: "Νίκος Παπαδόπουλος", email: SEED_ADMIN_EMAIL, passwordHash: adminHash, role: "federation_admin", clubId: null },
       { name: "Σοφία Δημητρίου", email: "club.admin@aquastat.cy", passwordHash: clubAdminHash, role: "club_admin", clubId: nol.id },
       { name: "Μάριος Παπαδόπουλος", email: "coach@aquastat.cy", passwordHash: coachHash, role: "coach", clubId: nol.id },
-      { name: "Ελένη Γεωργίου", email: "parent@aquastat.cy", passwordHash: parentHash, role: "parent", clubId: nol.id },
     ])
     .returning();
-  console.log(`[seed] users: ${fedAdmin.email}, ${clubAdmin.email}, ${coach.email}, ${parent.email}`);
+  console.log(`[seed] users: ${fedAdmin.email}, ${clubAdmin.email}, ${coach.email}`);
 
   // 3. Season 2025-2026
   const [season] = await db.insert(seasons).values({
@@ -120,12 +119,91 @@ async function main() {
   ]);
   console.log("[seed] athletes: 3 in ΝΟΛ");
 
+  // 7. Sample competitions
+  await db.insert(competitions).values([
+    {
+      seasonId: season.id,
+      name: "Πρωτάθλημα Ανοιχτής Κατηγορίας",
+      startDate: "2026-10-24",
+      endDate: "2026-10-26",
+      location: "Λεμεσός",
+      venue: "Δημ. Κολυμβητήριο Λεμεσού",
+      poolType: "50m",
+      declarationDeadline: new Date("2026-10-15T23:59:00Z"),
+      verificationStatus: "verified",
+      source: "manual",
+    },
+    {
+      seasonId: season.id,
+      name: "Χειμερινό Πρωτάθλημα",
+      startDate: "2026-11-02",
+      endDate: "2026-11-04",
+      location: "Λευκωσία",
+      venue: "Ολυμπιακό Κολυμβητήριο",
+      poolType: "25m",
+      declarationDeadline: new Date("2026-10-25T23:59:00Z"),
+      verificationStatus: "verified",
+      source: "manual",
+    },
+    {
+      seasonId: season.id,
+      name: "Διασυλλογικοί Παμπαίδων",
+      startDate: "2026-12-12",
+      endDate: "2026-12-13",
+      location: "Λάρνακα",
+      venue: "Δημοτικό Κολυμβητήριο",
+      poolType: "25m",
+      declarationDeadline: new Date("2026-12-05T23:59:00Z"),
+      verificationStatus: "verified",
+      source: "manual",
+    },
+  ]);
+  console.log("[seed] competitions: 3");
+
+  // 8. A few qualification standards (sample subset; load real ones from official document)
+  const events = await db.select().from(swimEvents);
+  const cats = await db.select().from(ageCategories).where(eq(ageCategories.seasonId, season.id));
+  const find = (distance: number, stroke: string, gender: "male" | "female") =>
+    events.find((e) => e.distanceM === distance && e.stroke === stroke && e.gender === gender);
+  const findCat = (nameEl: string) => cats.find((c) => c.nameEl.startsWith(nameEl));
+
+  const samples = [
+    { d: 50, s: "freestyle", g: "male", catEl: "Παμπαίδες", domestic: 26_500 },
+    { d: 100, s: "freestyle", g: "male", catEl: "Παμπαίδες", domestic: 58_000 },
+    { d: 100, s: "butterfly", g: "male", catEl: "Παμπαίδες", domestic: 65_500 },
+    { d: 50, s: "freestyle", g: "male", catEl: "Νέοι", domestic: 24_200 },
+    { d: 100, s: "breaststroke", g: "male", catEl: "Νέοι", domestic: 65_200 },
+    { d: 50, s: "freestyle", g: "female", catEl: "Παγκορασίδες", domestic: 28_500 },
+    { d: 100, s: "freestyle", g: "female", catEl: "Παγκορασίδες", domestic: 62_500 },
+  ] as const;
+
+  const standardRows = samples
+    .map((sm) => {
+      const ev = find(sm.d, sm.s, sm.g);
+      const cat = findCat(sm.catEl);
+      if (!ev || !cat) return null;
+      return {
+        seasonId: season.id,
+        standardType: "domestic_qualification" as const,
+        categoryId: cat.id,
+        gender: sm.g,
+        swimEventId: ev.id,
+        timeMs: sm.domestic,
+        verificationStatus: "verified" as const,
+      };
+    })
+    .filter((x): x is NonNullable<typeof x> => x !== null);
+
+  if (standardRows.length > 0) {
+    await db.insert(qualificationStandards).values(standardRows);
+    console.log(`[seed] standards: ${standardRows.length}`);
+  }
+
   console.log("[seed] ✓ complete");
   console.log("");
-  console.log("  Federation Admin: " + SEED_ADMIN_EMAIL + " / " + SEED_ADMIN_PASSWORD);
+  console.log("  Platform Admin:   " + SEED_ADMIN_EMAIL + " / " + SEED_ADMIN_PASSWORD);
   console.log("  Club Admin:       club.admin@aquastat.cy / ClubAdminDemo!1");
   console.log("  Coach:            coach@aquastat.cy / CoachDemo!1");
-  console.log("  Parent:           parent@aquastat.cy / ParentDemo!1");
 
   await sql.end();
 }

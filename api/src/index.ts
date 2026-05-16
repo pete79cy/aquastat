@@ -13,6 +13,9 @@ import competitionsRouter from "./routes/competitions.js";
 import resultsRouter from "./routes/results.js";
 import standardsRouter from "./routes/standards.js";
 import swimEventsRouter from "./routes/swimEvents.js";
+import seasonsRouter from "./routes/seasons.js";
+import statsRouter from "./routes/stats.js";
+import aiExtractionsRouter from "./routes/aiExtractions.js";
 import { sql } from "./db/client.js";
 
 const app = express();
@@ -50,6 +53,9 @@ app.use("/api/competitions", competitionsRouter);
 app.use("/api/results", resultsRouter);
 app.use("/api/standards", standardsRouter);
 app.use("/api/swim-events", swimEventsRouter);
+app.use("/api/seasons", seasonsRouter);
+app.use("/api/stats", statsRouter);
+app.use("/api/ai-extractions", aiExtractionsRouter);
 
 app.use(errorHandler);
 

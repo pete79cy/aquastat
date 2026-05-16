@@ -172,6 +172,23 @@ export const api = {
     list: () => request<{ swimEvents: SwimEvent[] }>("/swim-events"),
   },
 
+  seasons: {
+    active: () => request<{ season: Season | null }>("/seasons/active"),
+    list: () => request<{ seasons: Season[] }>("/seasons"),
+    categories: (seasonId: string) =>
+      request<{ ageCategories: AgeCategory[] }>(`/seasons/${seasonId}/categories`),
+  },
+
+  stats: {
+    federation: () => request<{ stats: FederationStats }>("/stats/federation"),
+    club: (clubId?: string) =>
+      request<{ stats: ClubStats }>(`/stats/club${clubId ? `?clubId=${clubId}` : ""}`),
+  },
+
+  aiExtractions: {
+    list: () => request<{ extractions: AiExtractionItem[] }>("/ai-extractions"),
+  },
+
   results: {
     createCompetition: (payload: {
       athleteId: string;
@@ -201,4 +218,53 @@ export type SwimEvent = {
   relay: boolean;
   gender: "male" | "female" | "mixed" | "any";
   displayName: string;
+};
+
+export type Season = {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  qualificationStartDate: string | null;
+  status: "draft" | "active" | "archived";
+};
+
+export type AgeCategory = {
+  id: string;
+  seasonId: string;
+  nameEl: string;
+  nameEn: string;
+  genderScope: "male" | "female" | "mixed" | "any";
+  birthYearFrom: number | null;
+  birthYearTo: number | null;
+  notes: string | null;
+};
+
+export type FederationStats = {
+  totalClubs: number;
+  totalAthletes: number;
+  totalCoaches: number;
+  upcomingCompetitions: number;
+  pendingAIReviews: number;
+  activeSeasons: number;
+};
+
+export type ClubStats = {
+  athletesCount: number;
+  coachesCount: number;
+  parentsCount: number;
+  upcomingCompetitions: number;
+  pendingAIReviews: number;
+};
+
+export type AiExtractionItem = {
+  id: string;
+  extractionType: "competitions" | "program" | "categories" | "standards" | "results" | "records" | "rules";
+  confidence: string | null;
+  status: "pending" | "approved" | "rejected" | "edited";
+  createdAt: string;
+  documentId: string;
+  documentFilename: string;
+  documentScope: "federation" | "club";
+  documentClubId: string | null;
 };
