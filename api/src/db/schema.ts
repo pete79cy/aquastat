@@ -345,6 +345,7 @@ export const documents = pgTable("documents", {
   id: uuid().primaryKey().default(sql`gen_random_uuid()`),
   scope: documentScopeEnum().notNull(),
   clubId: uuid().references(() => clubs.id, { onDelete: "cascade" }),
+  competitionId: uuid().references(() => competitions.id, { onDelete: "set null" }),
   filename: text().notNull(),
   originalFilename: text().notNull(),
   fileType: fileTypeEnum().notNull(),

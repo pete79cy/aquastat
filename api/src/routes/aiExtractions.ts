@@ -8,6 +8,19 @@ import { HttpError } from "../middleware/error.js";
 import { mapApprovedItem } from "../lib/mapping.js";
 import { logger } from "../lib/logger.js";
 
+/** Resolves the competition context for a given ai_extracted_item.id by
+ *  joining extraction → document. Returns competitionId or null. */
+async function getCompetitionContextForItem(itemId: string): Promise<string | null> {
+  const rows = await db
+    .select({ competitionId: documents.competitionId })
+    .from(aiExtractedItems)
+    .innerJoin(aiExtractions, eq(aiExtractions.id, aiExtractedItems.aiExtractionId))
+    .innerJoin(documents, eq(documents.id, aiExtractions.documentId))
+    .where(eq(aiExtractedItems.id, itemId))
+    .limit(1);
+  return rows[0]?.competitionId ?? null;
+}
+
 const router = Router();
 router.use(requireAuth);
 
@@ -88,11 +101,15 @@ router.post(
       // Try to map → create/update real entity
       let mapped: Awaited<ReturnType<typeof mapApprovedItem>> | null = null;
       let mapError: string | null = null;
+      const competitionContext = item.itemType === "result"
+        ? await getCompetitionContextForItem(itemId)
+        : null;
       try {
         mapped = await mapApprovedItem(
           db,
           item.itemType,
-          item.extractedJson as Record<string, unknown>
+          item.extractedJson as Record<string, unknown>,
+          { competitionId: competitionContext }
         );
       } catch (err) {
         mapError = (err as Error).message;

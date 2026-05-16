@@ -215,10 +215,11 @@ export const api = {
   documents: {
     list: () => request<{ documents: Document[] }>("/documents"),
     get: (id: string) => request<{ document: Document }>(`/documents/${id}`),
-    upload: async (file: File, documentType: string) => {
+    upload: async (file: File, documentType: string, competitionId?: string) => {
       const fd = new FormData();
       fd.append("file", file);
       fd.append("documentType", documentType);
+      if (competitionId) fd.append("competitionId", competitionId);
       const token = getToken();
       const res = await fetch(`${API_BASE}/documents/upload`, {
         method: "POST",

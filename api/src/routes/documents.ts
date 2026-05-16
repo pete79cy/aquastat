@@ -55,6 +55,7 @@ router.post(
       if (!req.file) throw new HttpError(400, "no_file");
 
       const documentType = (req.body.documentType as string) ?? "season_proclamation";
+      const competitionId = (req.body.competitionId as string | undefined) ?? null;
       const scope: "federation" | "club" = isFederationAdmin ? "federation" : "club";
       const clubId = scope === "club" ? callerClubId : null;
       const ext = path.extname(req.file.originalname).toLowerCase().replace(".", "");
@@ -65,6 +66,7 @@ router.post(
         .values({
           scope,
           clubId,
+          competitionId: competitionId || null,
           filename: req.file.filename,
           originalFilename: req.file.originalname,
           fileType: fileType as "pdf" | "doc" | "docx" | "other",
