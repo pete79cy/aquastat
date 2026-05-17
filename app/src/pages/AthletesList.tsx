@@ -56,6 +56,7 @@ export default function AthletesList() {
                 <thead>
                   <tr className="text-ink-muted text-[11px] uppercase tracking-wider border-b border-outline-variant">
                     <th className="px-4 py-2 text-left">{t("athletesList.columns.athlete")}</th>
+                    <th className="px-4 py-2 text-left">Αρ. Μητρώου</th>
                     <th className="px-4 py-2 text-left">{t("athletesList.columns.dob")}</th>
                     <th className="px-4 py-2 text-left">Φύλο</th>
                     <th className="px-4 py-2 text-left">{t("athletesList.columns.status")}</th>
@@ -73,6 +74,9 @@ export default function AthletesList() {
                             </div>
                             <span className="font-semibold text-ink">{a.firstName} {a.lastName}</span>
                           </Link>
+                        </td>
+                        <td className="px-4 py-3 text-ink-muted tnum font-mono text-xs">
+                          {a.registrationNumber ?? <span className="text-warn">—</span>}
                         </td>
                         <td className="px-4 py-3 text-ink-muted tnum">{a.dateOfBirth}</td>
                         <td className="px-4 py-3 text-ink-muted">{a.gender === "male" ? "Α" : "Γ"}</td>

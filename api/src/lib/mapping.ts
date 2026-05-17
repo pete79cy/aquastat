@@ -242,6 +242,27 @@ function normalizeName(s: string): string {
 }
 
 /**
+ * Match an athlete by registration_number (digits-only). Returns athleteId
+ * or null. Exact case-insensitive comparison ignoring leading zeros.
+ */
+export async function matchAthleteByRegistrationNumber(
+  db: Db,
+  regNum: string | null | undefined
+): Promise<{ athleteId: string | null; confidence: number; reason: string }> {
+  if (!regNum) return { athleteId: null, confidence: 0, reason: "no_reg_number" };
+  const normalized = String(regNum).trim().replace(/^0+/, "");
+  if (!normalized) return { athleteId: null, confidence: 0, reason: "empty_reg_number" };
+
+  const all = await db.select().from(athletes);
+  const match = all.find((a) => {
+    if (!a.registrationNumber) return false;
+    return a.registrationNumber.trim().replace(/^0+/, "") === normalized;
+  });
+  if (match) return { athleteId: match.id, confidence: 100, reason: "registration_number_exact" };
+  return { athleteId: null, confidence: 0, reason: "registration_number_not_found" };
+}
+
+/**
  * Match an athlete by full name. Returns athleteId + confidence.
  *  - exact full-name match  → 100
  *  - reversed (last first)  → 95
@@ -294,6 +315,9 @@ export async function mapResult(
   fallbackCompetitionId: string | null
 ): Promise<MappedEntity> {
   const athleteName = String(data.athleteName ?? "");
+  const athleteRegistrationNumber = data.athleteRegistrationNumber
+    ? String(data.athleteRegistrationNumber)
+    : null;
   const distanceM = Number(data.distanceM);
   const stroke = String(data.stroke) as Stroke;
   const timeMs = Number(data.timeMs);
@@ -313,9 +337,18 @@ export async function mapResult(
     throw new Error("result_missing_competition_context");
   }
 
-  const match = await matchAthleteByName(db, athleteName);
+  // PRIMARY: try registration number (100% confidence when matched)
+  let match = await matchAthleteByRegistrationNumber(db, athleteRegistrationNumber);
+
+  // FALLBACK: fuzzy name match
   if (!match.athleteId) {
-    throw new Error(`athlete_not_matched:${athleteName}`);
+    match = await matchAthleteByName(db, athleteName);
+  }
+
+  if (!match.athleteId) {
+    throw new Error(
+      `athlete_not_matched:${athleteRegistrationNumber ? `reg=${athleteRegistrationNumber} ` : ""}name=${athleteName}`
+    );
   }
 
   const swimEventId = await findSwimEvent(db, distanceM, stroke, gender);
@@ -337,7 +370,13 @@ export async function mapResult(
     .returning();
 
   logger.info(
-    { athleteName, matchedAthleteId: match.athleteId, matchConfidence: match.confidence, matchReason: match.reason },
+    {
+      athleteName,
+      athleteRegistrationNumber,
+      matchedAthleteId: match.athleteId,
+      matchConfidence: match.confidence,
+      matchReason: match.reason,
+    },
     "ai_result_mapped"
   );
 

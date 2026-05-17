@@ -61,7 +61,11 @@ export const ResultsSchema = z.object({
   competitionDate: z.string().nullable(),
   results: z.array(
     z.object({
-      athleteName: z.string(),
+      athleteName: z.string().describe("Full name as printed, e.g. 'Μαρίνος Πακκουτής'"),
+      athleteRegistrationNumber: z
+        .string()
+        .nullable()
+        .describe("ΚΟΕΚ registration number if printed before/with the athlete name — e.g. '8659' from '8659 Μαρίνος Πακκουτής'. Pure digits only, no spaces."),
       clubName: z.string().nullable(),
       eventLabel: z.string(),
       distanceM: z.number().int(),
@@ -106,6 +110,17 @@ Skip relays — only individual events. For each result:
 - Convert times to integer milliseconds (e.g., "1:05.23" → 65230).
 - Infer gender from the event name if listed as Men's/Women's section.
 - Skip empty rows, DSQ, DNF or DNS.
+
+REGISTRATION NUMBERS (κρίσιμο για matching):
+Cyprus swimming results commonly list each athlete as
+  <registration_number> <athlete name> <club> <time>
+Example: "8659  Μαρίνος Πακκουτής  ΝΟΛ  1:05.23"
+The leading 3-5 digit number BEFORE the name is the athlete's ΚΟΕΚ registration
+number (athleteRegistrationNumber). Extract it as digits-only string.
+If a number is not clearly a registration number (e.g. it's a heat lane,
+year of birth like 2012, or a rank), set athleteRegistrationNumber to null.
+Registration numbers are usually 3-6 digits and appear immediately before
+the athlete's name, not after.
 
 Call the save_extraction tool with the structured result.`;
 
