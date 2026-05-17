@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/lib/auth-context";
+import { EditAthleteDialog } from "@/components/athletes/EditAthleteDialog";
 import {
   LineChart,
   Line,
@@ -24,8 +26,16 @@ type PB = { event: string; pool: string; timeMs: number; pbId: string };
 
 export default function AthleteProfile() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { user: me } = useAuth();
   const params = useParams<{ id: string }>();
   const athleteId = params.id;
+  const [editOpen, setEditOpen] = useState(false);
+
+  const addResultBase =
+    me?.role === "coach" ? "/coach/add-result"
+      : me?.role === "club_admin" ? "/admin/add-result"
+      : "/coach/add-result";
 
   const athleteQ = useQuery({
     queryKey: ["athlete", athleteId],
@@ -141,10 +151,17 @@ export default function AthleteProfile() {
               </div>
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
-              <Button className="flex-1 sm:flex-initial">
+              <Button
+                className="flex-1 sm:flex-initial"
+                onClick={() => navigate(`${addResultBase}?athleteId=${athleteId}`)}
+              >
                 <Plus className="w-4 h-4" /> {t("athleteProfile.recordResult")}
               </Button>
-              <Button variant="outline" className="flex-1 sm:flex-initial">
+              <Button
+                variant="outline"
+                className="flex-1 sm:flex-initial"
+                onClick={() => setEditOpen(true)}
+              >
                 <Edit3 className="w-4 h-4" /> {t("athleteProfile.editProfile")}
               </Button>
             </div>
@@ -401,6 +418,8 @@ export default function AthleteProfile() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <EditAthleteDialog athlete={a} open={editOpen} onOpenChange={setEditOpen} />
     </div>
   );
 }

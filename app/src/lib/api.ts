@@ -89,6 +89,8 @@ export type Athlete = {
   registrationNumber: string | null;
   coachId: string | null;
   isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type Competition = {
@@ -222,6 +224,26 @@ export const api = {
       request<{ athlete: Athlete }>("/athletes", {
         method: "POST",
         body: JSON.stringify(payload),
+      }),
+    update: (
+      id: string,
+      payload: Partial<{
+        firstName: string;
+        lastName: string;
+        dateOfBirth: string;
+        gender: "male" | "female";
+        coachId: string;
+        registrationNumber: string;
+      }>
+    ) =>
+      request<{ athlete: Athlete }>(`/athletes/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      }),
+    setActive: (id: string, isActive: boolean) =>
+      request<{ athlete: Athlete }>(`/athletes/${id}/active`, {
+        method: "PATCH",
+        body: JSON.stringify({ isActive }),
       }),
     results: (id: string) =>
       request<{ results: CompetitionResult[] }>(`/athletes/${id}/results`),

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -14,12 +14,14 @@ import { formatTime } from "@/lib/utils";
 export default function AddCompetitionResult() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const prefilledAthleteId = searchParams.get("athleteId") ?? "";
 
   const athletesQ = useQuery({ queryKey: ["athletes"], queryFn: () => api.athletes.list().then((r) => r.athletes) });
   const competitionsQ = useQuery({ queryKey: ["competitions"], queryFn: () => api.competitions.list().then((r) => r.competitions) });
   const eventsQ = useQuery({ queryKey: ["swim-events"], queryFn: () => api.swimEvents.list().then((r) => r.swimEvents) });
 
-  const [athleteId, setAthleteId] = useState("");
+  const [athleteId, setAthleteId] = useState(prefilledAthleteId);
   const [competitionId, setCompetitionId] = useState("");
   const [swimEventId, setSwimEventId] = useState("");
   const [poolType, setPoolType] = useState<"25m" | "50m">("50m");

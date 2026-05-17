@@ -230,20 +230,51 @@ router.post("/", requireRole("federation_admin", "club_admin", "coach"), async (
   }
 });
 
-router.patch("/:id", requireRole("federation_admin", "club_admin"), async (req, res, next) => {
-  try {
-    await assertAccess(req, String(req.params.id));
-    const payload = createSchema.partial().omit({ clubId: true }).parse(req.body);
-    const [a] = await db
-      .update(athletes)
-      .set({ ...payload, updatedAt: new Date() })
-      .where(eq(athletes.id, String(req.params.id)))
-      .returning();
-    res.json({ athlete: a });
-  } catch (e) {
-    next(e);
+router.patch(
+  "/:id",
+  requireRole("federation_admin", "club_admin", "coach"),
+  async (req, res, next) => {
+    try {
+      const u = req.user!;
+      await assertAccess(req, String(req.params.id));
+      const payload = createSchema.partial().omit({ clubId: true }).parse(req.body);
+
+      // Coach cannot reassign the athlete to a different coach
+      if (u.role === "coach" && payload.coachId && payload.coachId !== u.sub) {
+        throw new HttpError(403, "coach_cannot_reassign");
+      }
+
+      const [a] = await db
+        .update(athletes)
+        .set({ ...payload, updatedAt: new Date() })
+        .where(eq(athletes.id, String(req.params.id)))
+        .returning();
+      res.json({ athlete: a });
+    } catch (e) {
+      next(e);
+    }
   }
-});
+);
+
+/** Toggle active flag */
+router.patch(
+  "/:id/active",
+  requireRole("federation_admin", "club_admin"),
+  async (req, res, next) => {
+    try {
+      const isActive = Boolean(req.body?.isActive);
+      await assertAccess(req, String(req.params.id));
+      const [a] = await db
+        .update(athletes)
+        .set({ isActive, updatedAt: new Date() })
+        .where(eq(athletes.id, String(req.params.id)))
+        .returning();
+      res.json({ athlete: a });
+    } catch (e) {
+      next(e);
+    }
+  }
+);
 
 /** Derive age category for an athlete given a season's categories. */
 export async function computeCategoryForAthlete(athleteId: string, seasonId: string): Promise<string | null> {
