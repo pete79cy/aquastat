@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth-context";
 import { EditAthleteDialog } from "@/components/athletes/EditAthleteDialog";
+import { EditResultDialog } from "@/components/results/EditResultDialog";
 import {
   LineChart,
   Line,
@@ -20,7 +21,7 @@ import { Chip } from "@/components/ui/Chip";
 import { Select } from "@/components/ui/Select";
 import { api, type CompetitionResult } from "@/lib/api";
 import { formatTime, formatDelta } from "@/lib/utils";
-import { Edit3, Plus, TrendingDown, Trophy, Target } from "lucide-react";
+import { Edit3, Plus, TrendingDown, Trophy, Target, MoreVertical } from "lucide-react";
 
 type PB = { event: string; pool: string; timeMs: number; pbId: string };
 
@@ -31,6 +32,7 @@ export default function AthleteProfile() {
   const params = useParams<{ id: string }>();
   const athleteId = params.id;
   const [editOpen, setEditOpen] = useState(false);
+  const [editResult, setEditResult] = useState<CompetitionResult | null>(null);
 
   const addResultBase =
     me?.role === "coach" ? "/coach/add-result"
@@ -357,8 +359,9 @@ export default function AthleteProfile() {
                       <th className="px-4 py-2 text-left">Αγώνισμα</th>
                       <th className="px-4 py-2 text-left">Πισίνα</th>
                       <th className="px-4 py-2 text-left">Φάση</th>
-                      <th className="px-4 py-2 text-left">Status</th>
+                      <th className="px-4 py-2 text-left" title="pending = αναμένει επιβεβαίωση και δεν μετράει σαν PB">Status</th>
                       <th className="px-4 py-2 text-right">Χρόνος</th>
+                      <th className="px-4 py-2"></th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-outline-variant/50">
@@ -373,6 +376,16 @@ export default function AthleteProfile() {
                           </Chip>
                         </td>
                         <td className="px-4 py-3 text-right tnum font-bold text-primary">{formatTime(r.timeMs)}</td>
+                        <td className="px-2 py-3 text-right">
+                          <button
+                            onClick={() => setEditResult(r)}
+                            className="p-1.5 rounded-md hover:bg-surface-2 text-ink-muted hover:text-primary"
+                            aria-label="Επεξεργασία"
+                            title="Επεξεργασία επίδοσης"
+                          >
+                            <MoreVertical className="w-4 h-4" />
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -420,6 +433,12 @@ export default function AthleteProfile() {
       </Tabs>
 
       <EditAthleteDialog athlete={a} open={editOpen} onOpenChange={setEditOpen} />
+      <EditResultDialog
+        result={editResult}
+        athleteId={a.id}
+        open={!!editResult}
+        onOpenChange={(o) => { if (!o) setEditResult(null); }}
+      />
     </div>
   );
 }

@@ -350,6 +350,26 @@ export const api = {
       roundType?: "heat" | "final" | "direct_final" | "training_race" | "unknown";
       rank?: number;
     }) => request<{ result: { id: string } }>("/results/competition", { method: "POST", body: JSON.stringify(payload) }),
+    updateCompetition: (
+      id: string,
+      payload: Partial<{
+        resultTimeMs: number;
+        rank: number | null;
+        roundType: "heat" | "final" | "direct_final" | "training_race" | "unknown";
+        poolType: "25m" | "50m" | "unknown";
+      }>
+    ) =>
+      request<{ result: CompetitionResult }>(`/results/competition/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      }),
+    setCompetitionStatus: (id: string, verificationStatus: "pending" | "verified" | "rejected") =>
+      request<{ result: CompetitionResult }>(`/results/competition/${id}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ verificationStatus }),
+      }),
+    deleteCompetition: (id: string) =>
+      request<void>(`/results/competition/${id}`, { method: "DELETE" }),
     createTraining: (payload: {
       athleteId: string;
       swimEventId: string;
