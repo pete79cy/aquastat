@@ -63,25 +63,28 @@ export const ProclamationSchema = z.object({
 export type ProclamationExtraction = z.infer<typeof ProclamationSchema>;
 
 export const ResultsSchema = z.object({
-  competitionName: z.string().nullable(),
-  competitionDate: z.string().nullable(),
-  results: z.array(
-    z.object({
-      athleteName: z.string().describe("Full name as printed, e.g. 'Μαρίνος Πακκουτής'"),
-      athleteRegistrationNumber: z
-        .string()
-        .nullable()
-        .describe("ΚΟΕΚ registration number if printed before/with the athlete name — e.g. '8659' from '8659 Μαρίνος Πακκουτής'. Pure digits only, no spaces."),
-      clubName: z.string().nullable(),
-      eventLabel: z.string(),
-      distanceM: z.number().int(),
-      stroke: z.enum(["freestyle", "backstroke", "breaststroke", "butterfly", "medley"]),
-      timeMs: z.number().int(),
-      rank: z.number().int().nullable(),
-      round: z.enum(["heat", "final", "direct_final"]).nullable(),
-      gender: z.enum(["male", "female"]).nullable(),
-    })
-  ),
+  competitionName: z.string().nullable().default(null),
+  competitionDate: z.string().nullable().default(null),
+  results: z
+    .array(
+      z.object({
+        athleteName: z.string().describe("Full name as printed, e.g. 'Μαρίνος Πακκουτής'"),
+        athleteRegistrationNumber: z
+          .string()
+          .nullable()
+          .describe("ΚΟΕΚ registration number if printed before/with the athlete name — e.g. '8659' from '8659 Μαρίνος Πακκουτής'. Pure digits only, no spaces."),
+        clubName: z.string().nullable(),
+        eventLabel: z.string(),
+        distanceM: z.number().int(),
+        stroke: z.enum(["freestyle", "backstroke", "breaststroke", "butterfly", "medley"]),
+        timeMs: z.number().int(),
+        rank: z.number().int().nullable(),
+        round: z.enum(["heat", "final", "direct_final"]).nullable(),
+        gender: z.enum(["male", "female"]).nullable(),
+      })
+    )
+    .default([])
+    .describe("All individual swim results. ALWAYS provide as array — use [] if no results found."),
 });
 
 export type ResultsExtraction = z.infer<typeof ResultsSchema>;
@@ -128,7 +131,15 @@ year of birth like 2012, or a rank), set athleteRegistrationNumber to null.
 Registration numbers are usually 3-6 digits and appear immediately before
 the athlete's name, not after.
 
-Call the save_extraction tool with the structured result.`;
+CRITICAL — schema compliance:
+- The 'results' field MUST always be an array. Even if the document has zero
+  results to extract, pass results: []. NEVER omit the field. NEVER return null.
+- Set competitionName and competitionDate to the meet's name and date if
+  visible at the top of the document, otherwise null.
+- For each result, all top-level fields shown in the schema are required.
+  Use null only where the schema explicitly allows it.
+
+Call the save_extraction tool with the structured result. Be exhaustive.`;
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
@@ -205,8 +216,23 @@ async function callExtraction<T extends z.ZodType>({
     throw new Error("Model did not call save_extraction tool");
   }
 
-  const data = schema.parse(toolUse.input);
-  return { data, usage: response.usage, model };
+  const parsed = schema.safeParse(toolUse.input);
+  if (!parsed.success) {
+    // Log the raw model output so we can see what came back wrong
+    const rawSample = JSON.stringify(toolUse.input).slice(0, 800);
+    const issuesSummary = parsed.error.issues
+      .map((i) => `${i.path.join(".")}: ${i.message}`)
+      .join("; ");
+    logger.error(
+      { model, rawSample, issues: issuesSummary, totalIssues: parsed.error.issues.length },
+      "extraction_schema_violation"
+    );
+    throw new Error(
+      `Model returned data that did not match schema (${parsed.error.issues.length} issues): ${issuesSummary}`
+    );
+  }
+
+  return { data: parsed.data, usage: response.usage, model };
 }
 
 function pickModel(taskModel: string | undefined, fallback: string): string {
