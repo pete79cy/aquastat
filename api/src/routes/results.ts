@@ -31,10 +31,13 @@ router.post("/competition", requireRole("federation_admin", "club_admin", "coach
     if (u.role === "coach" && a.coachId !== u.sub) throw new HttpError(403, "forbidden");
     if (u.role === "club_admin" && a.clubId !== u.clubId) throw new HttpError(403, "forbidden");
 
+    // Manual entries by trusted users (coach, club_admin, federation_admin) are
+    // auto-verified. Only AI-imported (handled in mapping.ts) defaults to pending
+    // until human review per PDR §6.15.
     const [created] = await db.insert(competitionResults).values({
       ...payload,
       createdBy: u.sub,
-      verificationStatus: "pending",
+      verificationStatus: "verified",
     }).returning();
     res.status(201).json({ result: created });
   } catch (e) {
