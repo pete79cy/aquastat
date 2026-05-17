@@ -1,9 +1,15 @@
 /**
  * AI extraction service — sends a PDF to Claude and gets back structured JSON.
  *
- * Uses claude-opus-4-6 with a forced tool call as the structured-output
- * mechanism (more stable across SDK versions than messages.parse). PDF is sent
- * as a base64 document content block. Returns typed data; caller persists.
+ * Cost / speed optimizations:
+ * - Two-tier model selection: Opus for proclamations (complex Greek reasoning),
+ *   Haiku for results (tabular extraction, 15x cheaper, much faster)
+ * - Streaming + finalMessage() to avoid HTTP timeouts on long calls
+ * - Prompt caching on the static instructions block (~90% discount on repeats)
+ * - Larger max_tokens for results (some PDFs have 100+ rows)
+ *
+ * Uses a forced tool call as the structured-output mechanism (stable across
+ * SDK versions). PDF is sent as a base64 document content block.
  */
 import type Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
@@ -80,7 +86,7 @@ export const ResultsSchema = z.object({
 
 export type ResultsExtraction = z.infer<typeof ResultsSchema>;
 
-// ─── JSON schemas (converted at module load — Anthropic API expects JSON Schema)
+// ─── JSON schemas (converted once at module load — saves CPU per request) ──
 const proclamationJsonSchema = z.toJSONSchema(ProclamationSchema, { target: "draft-7" });
 const resultsJsonSchema = z.toJSONSchema(ResultsSchema, { target: "draft-7" });
 
@@ -131,19 +137,26 @@ type ExtractionResult<T> = {
   confidencePercent: number;
   inputTokens: number;
   outputTokens: number;
-};
+  cacheReadTokens: number;
+  cacheCreationTokens: number;
+  model: string;
+}
 
 async function callExtraction<T extends z.ZodType>({
   filepath,
   instructions,
   schema,
   jsonSchema,
+  model,
+  maxTokens,
 }: {
   filepath: string;
   instructions: string;
   schema: T;
   jsonSchema: object;
-}): Promise<{ data: z.infer<T>; usage: Anthropic.Usage }> {
+  model: string;
+  maxTokens: number;
+}): Promise<{ data: z.infer<T>; usage: Anthropic.Usage; model: string }> {
   if (!fileExists(filepath)) throw new Error(`File not found: ${filepath}`);
   const client = getAnthropic();
   const pdfBase64 = readFileBase64(filepath);
@@ -154,9 +167,11 @@ async function callExtraction<T extends z.ZodType>({
     input_schema: jsonSchema as Anthropic.Tool["input_schema"],
   };
 
-  const response = await client.messages.create({
-    model: env.ANTHROPIC_MODEL,
-    max_tokens: 16000,
+  // Streaming + finalMessage() avoids HTTP timeouts on long extractions.
+  // Prompt-cache the instructions: identical across requests, gives ~90% discount.
+  const stream = client.messages.stream({
+    model,
+    max_tokens: maxTokens,
     tools: [tool],
     tool_choice: { type: "tool", name: "save_extraction" },
     messages: [
@@ -171,11 +186,17 @@ async function callExtraction<T extends z.ZodType>({
               data: pdfBase64,
             },
           },
-          { type: "text", text: instructions },
+          {
+            type: "text",
+            text: instructions,
+            cache_control: { type: "ephemeral" },
+          },
         ],
       },
     ],
   });
+
+  const response = await stream.finalMessage();
 
   const toolUse = response.content.find(
     (b): b is Anthropic.ToolUseBlock => b.type === "tool_use"
@@ -185,7 +206,11 @@ async function callExtraction<T extends z.ZodType>({
   }
 
   const data = schema.parse(toolUse.input);
-  return { data, usage: response.usage };
+  return { data, usage: response.usage, model };
+}
+
+function pickModel(taskModel: string | undefined, fallback: string): string {
+  return taskModel && taskModel.trim().length > 0 ? taskModel : fallback;
 }
 
 // ─── Public extraction APIs ────────────────────────────────────────────────
@@ -194,11 +219,15 @@ export async function extractProclamation(
   filepath: string
 ): Promise<ExtractionResult<ProclamationExtraction>> {
   const startTime = Date.now();
-  const { data, usage } = await callExtraction({
+  const model = pickModel(env.ANTHROPIC_MODEL_PROCLAMATION, env.ANTHROPIC_MODEL);
+
+  const { data, usage, model: usedModel } = await callExtraction({
     filepath,
     instructions: PROCLAMATION_INSTRUCTIONS,
     schema: ProclamationSchema,
     jsonSchema: proclamationJsonSchema,
+    model,
+    maxTokens: 32000,
   });
 
   const itemCount =
@@ -212,6 +241,9 @@ export async function extractProclamation(
       itemCount,
       inputTokens: usage.input_tokens,
       outputTokens: usage.output_tokens,
+      cacheReadTokens: usage.cache_read_input_tokens ?? 0,
+      cacheCreationTokens: usage.cache_creation_input_tokens ?? 0,
+      model: usedModel,
     },
     "ai_extraction_proclamation_complete"
   );
@@ -221,6 +253,9 @@ export async function extractProclamation(
     confidencePercent,
     inputTokens: usage.input_tokens,
     outputTokens: usage.output_tokens,
+    cacheReadTokens: usage.cache_read_input_tokens ?? 0,
+    cacheCreationTokens: usage.cache_creation_input_tokens ?? 0,
+    model: usedModel,
   };
 }
 
@@ -228,11 +263,15 @@ export async function extractResults(
   filepath: string
 ): Promise<ExtractionResult<ResultsExtraction>> {
   const startTime = Date.now();
-  const { data, usage } = await callExtraction({
+  const model = pickModel(env.ANTHROPIC_MODEL_RESULTS, "claude-haiku-4-5");
+
+  const { data, usage, model: usedModel } = await callExtraction({
     filepath,
     instructions: RESULTS_INSTRUCTIONS,
     schema: ResultsSchema,
     jsonSchema: resultsJsonSchema,
+    model,
+    maxTokens: 32000,
   });
 
   const confidencePercent =
@@ -245,6 +284,9 @@ export async function extractResults(
       resultCount: data.results.length,
       inputTokens: usage.input_tokens,
       outputTokens: usage.output_tokens,
+      cacheReadTokens: usage.cache_read_input_tokens ?? 0,
+      cacheCreationTokens: usage.cache_creation_input_tokens ?? 0,
+      model: usedModel,
     },
     "ai_extraction_results_complete"
   );
@@ -254,5 +296,8 @@ export async function extractResults(
     confidencePercent,
     inputTokens: usage.input_tokens,
     outputTokens: usage.output_tokens,
+    cacheReadTokens: usage.cache_read_input_tokens ?? 0,
+    cacheCreationTokens: usage.cache_creation_input_tokens ?? 0,
+    model: usedModel,
   };
 }

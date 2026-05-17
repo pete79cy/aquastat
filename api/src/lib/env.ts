@@ -17,6 +17,11 @@ const envSchema = z.object({
   // AI extraction
   ANTHROPIC_API_KEY: z.string().optional(),
   ANTHROPIC_MODEL: z.string().default("claude-opus-4-6"),
+  // Per-task overrides. Defaults split by complexity:
+  //   - proclamation: long Greek text + reasoning about categories/standards → Opus
+  //   - results: tabular structured extraction → Haiku (15x cheaper, 5x faster)
+  ANTHROPIC_MODEL_PROCLAMATION: z.string().optional(),
+  ANTHROPIC_MODEL_RESULTS: z.string().default("claude-haiku-4-5"),
   // Uploads
   UPLOAD_DIR: z.string().default("/data/uploads"),
   MAX_UPLOAD_BYTES: z.coerce.number().int().default(26214400),
