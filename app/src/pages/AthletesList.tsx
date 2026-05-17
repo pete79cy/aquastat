@@ -8,10 +8,12 @@ import { Input } from "@/components/ui/Input";
 import { Chip } from "@/components/ui/Chip";
 import { api } from "@/lib/api";
 import { Search, Plus } from "lucide-react";
+import { CreateAthleteDialog } from "@/components/athletes/CreateAthleteDialog";
 
 export default function AthletesList() {
   const { t } = useTranslation();
   const [q, setQ] = useState("");
+  const [createOpen, setCreateOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["athletes"],
@@ -30,10 +32,12 @@ export default function AthletesList() {
           <h1 className="text-2xl lg:text-headline-lg font-semibold text-ink">{t("athletesList.title")}</h1>
           <p className="text-sm text-ink-muted mt-1">{t("athletesList.results", { count: filtered.length })}</p>
         </div>
-        <Button>
+        <Button onClick={() => setCreateOpen(true)}>
           <Plus className="w-4 h-4" /> {t("athletesList.newAthlete")}
         </Button>
       </header>
+
+      <CreateAthleteDialog open={createOpen} onOpenChange={setCreateOpen} />
 
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-subtle" />

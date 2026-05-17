@@ -210,6 +210,19 @@ export const api = {
   athletes: {
     list: () => request<{ athletes: Athlete[] }>("/athletes"),
     get: (id: string) => request<{ athlete: Athlete }>(`/athletes/${id}`),
+    create: (payload: {
+      clubId: string;
+      firstName: string;
+      lastName: string;
+      dateOfBirth: string;
+      gender: "male" | "female";
+      coachId?: string;
+      registrationNumber?: string;
+    }) =>
+      request<{ athlete: Athlete }>("/athletes", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      }),
     results: (id: string) =>
       request<{ results: CompetitionResult[] }>(`/athletes/${id}/results`),
     trainingResults: (id: string) =>

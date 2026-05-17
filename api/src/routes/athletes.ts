@@ -209,12 +209,19 @@ const createSchema = z.object({
   registrationNumber: z.string().optional(),
 });
 
-router.post("/", requireRole("federation_admin", "club_admin"), async (req, res, next) => {
+router.post("/", requireRole("federation_admin", "club_admin", "coach"), async (req, res, next) => {
   try {
-    const { isFederationAdmin, clubId } = tenantClubFilter(req);
+    const u = req.user!;
+    const { isFederationAdmin, clubId: callerClubId } = tenantClubFilter(req);
     const payload = createSchema.parse(req.body);
 
-    if (!isFederationAdmin && payload.clubId !== clubId) throw new HttpError(403, "forbidden");
+    // Coach can only create athletes in their own club and must assign self as coach
+    if (u.role === "coach") {
+      if (payload.clubId !== callerClubId) throw new HttpError(403, "wrong_club_scope");
+      payload.coachId = u.sub; // force-assign self
+    } else if (!isFederationAdmin && payload.clubId !== callerClubId) {
+      throw new HttpError(403, "wrong_club_scope");
+    }
 
     const [a] = await db.insert(athletes).values(payload).returning();
     res.status(201).json({ athlete: a });
