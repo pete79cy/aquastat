@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   Home, Users, Calendar, BarChart3, User, Waves, Bell, LogOut,
-  Building2, Sparkles, FileText, Layers, GraduationCap, Plus, ListChecks,
+  Building2, Sparkles, FileText, Layers, GraduationCap, Plus, ListChecks, UserCog,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
@@ -27,6 +27,7 @@ const navByRole: Record<Role, NavItem[]> = {
   club_admin: [
     { to: "/admin", key: "nav.home", icon: Home },
     { to: "/admin/athletes", key: "nav.athletes", icon: Users },
+    { to: "/admin/users", key: "nav.users", icon: UserCog },
     { to: "/admin/competitions", key: "nav.events", icon: Calendar },
     { to: "/admin/standards", key: "nav.standards", icon: BarChart3 },
     { to: "/admin/ai-review", key: "nav.aiReview", icon: Sparkles },
@@ -35,6 +36,7 @@ const navByRole: Record<Role, NavItem[]> = {
   federation_admin: [
     { to: "/federation", key: "nav.home", icon: Home },
     { to: "/federation/clubs", key: "nav.clubs", icon: Building2 },
+    { to: "/federation/users", key: "nav.users", icon: UserCog },
     { to: "/federation/season", key: "nav.season", icon: FileText },
     { to: "/federation/categories", key: "nav.athletes", icon: Layers },
     { to: "/federation/standards", key: "nav.standards", icon: BarChart3 },
